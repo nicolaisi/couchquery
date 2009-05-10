@@ -1,0 +1,7 @@
+setup.py
+couchquery/__init__.py
+couchquery/asynchttp.py
+couchquery.egg-info/PKG-INFO
+couchquery.egg-info/SOURCES.txt
+couchquery.egg-info/dependency_links.txt
+couchquery.egg-info/top_level.txt
