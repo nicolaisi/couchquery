@@ -55,7 +55,7 @@ class ViewResult(dict):
         self.view = view
         self.rows = RowsSet(view.design.views.db, result["rows"])
     def __len__(self):
-        return self.result["total_rows"]
+        return len(self.result["rows"])
 
 class View(object):
     def __init__(self, design, name):
@@ -91,7 +91,6 @@ class Design(object):
             setattr(self, name, View(self, name))
             return getattr(self, name)
         else:
-            print resp.status
             raise AttributeError("No view named "+name+". "+content)
 
 class Views(object):
@@ -213,7 +212,8 @@ class CouchDocument(dict):
     
     __getattr__ = dict.__getitem__
     
-    __setattr__ = dict.__setitem__    
+    def __setattr__(self, k, v):
+        self[k] = v    
 
 
 doc = CouchDocument
