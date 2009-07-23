@@ -58,10 +58,11 @@ class ViewResult(dict):
         return len(self.result["rows"])
 
 class View(object):
-    def __init__(self, design, name):
+    def __init__(self, design, name, http):
         self.design = design
         self.name = name
         self.uri = self.design.uri+'_view/'+name+'/'
+        self.http = http
     def __call__(self, async=False, twisted=False, callback=None, **kwargs):
         for k, v in kwargs.items():
             if type(v) is bool:
@@ -73,34 +74,36 @@ class View(object):
             uri = self.uri + '?' + query_string
         else:
             uri = self.uri
-        response, content = httplib2.Http().request(uri, "GET", headers=jheaders)
+        response, content = self.http.request(uri, "GET", headers=jheaders)
         assert response.status == 200
         response_body = simplejson.loads(content)
         return ViewResult(response_body, self)
         
 
 class Design(object):
-    def __init__(self, views, name):
+    def __init__(self, views, name, http):
         self.views = views
         self.name = name
         self.uri = self.views.uri+self.name+'/'
+        self.http = http
     def __getattr__(self, name):
-        resp, content = httplib2.Http().request(self.uri+'_view/'+name+'/', 
+        resp, content = self.http.request(self.uri+'_view/'+name+'/', 
                                                 "HEAD", headers=jheaders)
         if resp.status == 200:
-            setattr(self, name, View(self, name))
+            setattr(self, name, View(self, name, self.http))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name+". "+content)
 
 class Views(object):
-    def __init__(self, db):
+    def __init__(self, db, http):
         self.db = db
         self.uri = self.db.uri+'_design/'
+        self.http = http
     def __getattr__(self, name):
-        resp, content = httplib2.Http().request(self.uri+name+'/', "HEAD", headers=jheaders)
+        resp, content = self.http.request(self.uri+name+'/', "HEAD", headers=jheaders)
         if resp.status == 200:
-            setattr(self, name, Design(self, name))
+            setattr(self, name, Design(self, name, self.http))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name)
@@ -112,14 +115,25 @@ class CouchDBDocumentConflict(Exception): pass
 class CouchDBDocumentDoesNotExist(Exception): pass
 
 class CouchDatabase(object):
-    def __init__(self, uri):
+    def __init__(self, uri, http=None):
         self.uri = uri
         if not self.uri.endswith('/'):
             self.uri += '/'
-        self.views = Views(self)
+        
+        if http is None:    
+            if '@' in self.uri:
+                user, password = self.uri.strip('http://').split('@')[0].split(':')
+                self.uri = 'http://'+self.uri.split('@')[1]
+                http = httplib2.Http('.cache')
+                http.add_credentials(user, password)
+            else: 
+                http = httplib2.Http()
+            
+        self.http = http
+        self.views = Views(self, self.http)
         
     def get(self, _id):
-        resp, content = httplib2.Http().request(self.uri+_id, "GET", headers=jheaders)
+        resp, content = self.http.request(self.uri+_id, "GET", headers=jheaders)
         if resp.status == 200:
             obj = dict([(str(k),v,) for k,v in simplejson.loads(content).items()])
             return CouchDocument(obj, db=self)
@@ -129,7 +143,7 @@ class CouchDatabase(object):
     def create(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        resp, content = httplib2.Http().request(self.uri, "POST", headers=jheaders, body=simplejson.dumps(doc))
+        resp, content = self.http.request(self.uri, "POST", headers=jheaders, body=simplejson.dumps(doc))
         if resp.status == 201:
             return simplejson.loads(content)
         else:
@@ -138,7 +152,7 @@ class CouchDatabase(object):
     def update(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        resp, content = httplib2.Http().request(self.uri+doc['_id'], "PUT", headers=jheaders, body=simplejson.dumps(doc))
+        resp, content = self.http.request(self.uri+doc['_id'], "PUT", headers=jheaders, body=simplejson.dumps(doc))
         if resp.status == 201:
             return simplejson.loads(content)
         elif resp.status == 413:
@@ -149,7 +163,7 @@ class CouchDatabase(object):
     def delete(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        resp, content = httplib2.Http().request(
+        resp, content = self.http.request(
             self.uri+doc['_id']+'?rev='+str(doc['_rev']), 
             "DELETE", headers=jheaders)
         if resp.status == 200:
