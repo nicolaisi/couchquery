@@ -122,7 +122,7 @@ class CouchDatabase(object):
         
         if http is None:    
             if '@' in self.uri:
-                user, password = self.uri.strip('http://').split('@')[0].split(':')
+                user, password = self.uri.replace('http://','').split('@')[0].split(':')
                 self.uri = 'http://'+self.uri.split('@')[1]
                 http = httplib2.Http('.cache')
                 http.add_credentials(user, password)
@@ -174,7 +174,7 @@ class CouchDatabase(object):
     def save(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        if doc.has_key('_id'):
+        if doc.has_key('_rev'):
             return self.update(doc)
         else:
             return self.create(doc)
