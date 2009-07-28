@@ -230,7 +230,7 @@ class CouchDatabase(object):
         try:
             document["_rev"] = self.get(document["_id"])["_rev"]
         except Exception, e: 
-            print e
+            pass
         
         return self.save(document)
 
