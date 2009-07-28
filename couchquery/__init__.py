@@ -21,14 +21,24 @@ class RowsSet(object):
         self.__changes = []
         self.__parent = parent
     
+    def keys(self):
+        return (x['key'] for x in self.__rows)
+    def values(self):
+        return (x['value'] for x in self.__rows)
+    def ids(self):
+        return (x['id'] for x in self.__rows)
+    
     def __iter__(self):
-        if ( len(self.__rows) is not 0 and type(self.__rows[0]) is dict 
-                                   and self.__rows[0].has_key('id') ):
-            for x in self.__rows:
+        # if ( len(self.__rows) is not 0 and type(self.__rows[0]) is dict 
+        #                                    and self.__rows[0].has_key('id') ):
+        for x in self.__rows:
+            if type(x) is dict and type(x['value']) is dict and x['value'].has_key('_id'):
                 yield CouchDocument(x['value'], db=self.__db)
-        else:
-            for x in self.__rows:
+            else:
                 yield x['value']
+        # else:
+        #     for x in self.__rows:
+        #         yield x['value']
     
     def __getitem__(self, i):
         if type(i) is int:
@@ -49,11 +59,10 @@ class RowsSet(object):
     def save(self, ): pass
 
 class ViewResult(dict):
-    def __init__(self, result, view):
+    def __init__(self, result, db):
         super(ViewResult, self).__init__(result)
         self.result = result
-        self.view = view
-        self.rows = RowsSet(view.design.views.db, result["rows"])
+        self.rows = RowsSet(db, result["rows"])
     def __len__(self):
         return len(self.result["rows"])
 
@@ -77,7 +86,7 @@ class View(object):
         response, content = self.http.request(uri, "GET", headers=jheaders)
         assert response.status == 200
         response_body = simplejson.loads(content)
-        return ViewResult(response_body, self)
+        return ViewResult(response_body, self.design.views.db)
         
 
 class Design(object):
@@ -95,11 +104,37 @@ class Design(object):
         else:
             raise AttributeError("No view named "+name+". "+content)
 
+class TempViewException(Exception): pass
+
 class Views(object):
     def __init__(self, db, http):
         self.db = db
         self.uri = self.db.uri+'_design/'
         self.http = http
+        
+    def temp_view(self, map, reduce=None, **kwargs):
+        view = {"map":map}
+        if reduce:
+            view['reduce'] = reduce
+        body = simplejson.dumps(view)
+        if len(kwargs) is 0:
+            uri = self.db.uri+'_temp_view'
+        else:
+            for k, v in kwargs.items():
+                if type(v) is bool:
+                    kwargs[k] = str(v).lower()
+                if k in ['key', 'startkey', 'endkey']:
+                    kwargs[k] = simplejson.dumps(v)
+            query_string = urllib.urlencode(kwargs)
+            uri = self.db.uri+'_temp_view' + '?' + query_string
+
+        resp, content = self.http.request(uri, "POST", headers=jheaders, body=body)
+        if resp.status == 200:
+            response_body = simplejson.loads(content)
+            return ViewResult(response_body, self.db)
+        else:
+            raise TempViewException('Status: '+str(resp.status)+'\nReason: '+resp.reason+'\nBody: '+content)
+        
     def __getattr__(self, name):
         resp, content = self.http.request(self.uri+name+'/', "HEAD", headers=jheaders)
         if resp.status == 200:
@@ -174,7 +209,7 @@ class CouchDatabase(object):
     def save(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        if doc.has_key('_rev'):
+        if doc.has_key('_id'):
             return self.update(doc)
         else:
             return self.create(doc)
@@ -194,7 +229,8 @@ class CouchDatabase(object):
         
         try:
             document["_rev"] = self.get(document["_id"])["_rev"]
-        except: pass        
+        except Exception, e: 
+            print e
         
         return self.save(document)
 
