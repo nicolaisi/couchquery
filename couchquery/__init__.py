@@ -150,7 +150,7 @@ class CouchDBDocumentConflict(Exception): pass
 class CouchDBDocumentDoesNotExist(Exception): pass
 
 class CouchDatabase(object):
-    def __init__(self, uri, http=None):
+    def __init__(self, uri, http=None, cache=None):
         self.uri = uri
         if not self.uri.endswith('/'):
             self.uri += '/'
@@ -159,10 +159,12 @@ class CouchDatabase(object):
             if '@' in self.uri:
                 user, password = self.uri.replace('http://','').split('@')[0].split(':')
                 self.uri = 'http://'+self.uri.split('@')[1]
-                http = httplib2.Http('.cache')
+                if cache is None:
+                    cache = '.cache'
+                http = httplib2.Http(cache)
                 http.add_credentials(user, password)
             else: 
-                http = httplib2.Http()
+                http = httplib2.Http(cache)
             
         self.http = http
         self.views = Views(self, self.http)
