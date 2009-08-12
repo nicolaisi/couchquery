@@ -22,11 +22,11 @@ class RowsSet(object):
         self.__parent = parent
     
     def keys(self):
-        return (x['key'] for x in self.__rows)
+        return [x['key'] for x in self.__rows]
     def values(self):
-        return (x['value'] for x in self.__rows)
+        return [x['value'] for x in self.__rows]
     def ids(self):
-        return (x['id'] for x in self.__rows)
+        return [x['id'] for x in self.__rows]
     
     def __iter__(self):
         # if ( len(self.__rows) is not 0 and type(self.__rows[0]) is dict 
@@ -211,7 +211,7 @@ class CouchDatabase(object):
     def save(self, doc):
         if type(doc) is not dict:
             doc = dict(doc)
-        if doc.has_key('_id'):
+        if doc.has_key('_id') :
             return self.update(doc)
         else:
             return self.create(doc)
@@ -236,7 +236,7 @@ class CouchDatabase(object):
         
         return self.save(document)
 
-db = CouchDatabase
+Database = CouchDatabase
 
 def set_global_db(_gdb):
     global global_db
