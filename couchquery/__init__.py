@@ -101,7 +101,7 @@ class Design(object):
         if debugging:    
             resp, content = self.http.request(self.uri+'_view/'+name+'/', 
                                                     "HEAD", headers=jheaders)
-        if resp.status == 200 or not debugging:
+        if not debugging or resp.status == 200:
             setattr(self, name, View(self, name, self.http))
             return getattr(self, name)
         else:
@@ -141,7 +141,7 @@ class Views(object):
     def __getattr__(self, name):
         if debugging:
             resp, content = self.http.request(self.uri+name+'/', "HEAD", headers=jheaders)
-        if resp.status == 200 or not debugging:
+        if not debugging or resp.status == 200:
             setattr(self, name, Design(self, name, self.http))
             return getattr(self, name)
         else:
