@@ -4,6 +4,8 @@ import urllib
 import copy
 import httplib2
 
+debugging = True
+
 try:
     import simplejson
 except:
@@ -96,9 +98,10 @@ class Design(object):
         self.uri = self.views.uri+self.name+'/'
         self.http = http
     def __getattr__(self, name):
-        resp, content = self.http.request(self.uri+'_view/'+name+'/', 
-                                                "HEAD", headers=jheaders)
-        if resp.status == 200:
+        if debugging:    
+            resp, content = self.http.request(self.uri+'_view/'+name+'/', 
+                                                    "HEAD", headers=jheaders)
+        if resp.status == 200 or not debugging:
             setattr(self, name, View(self, name, self.http))
             return getattr(self, name)
         else:
@@ -136,8 +139,9 @@ class Views(object):
             raise TempViewException('Status: '+str(resp.status)+'\nReason: '+resp.reason+'\nBody: '+content)
         
     def __getattr__(self, name):
-        resp, content = self.http.request(self.uri+name+'/', "HEAD", headers=jheaders)
-        if resp.status == 200:
+        if debugging:
+            resp, content = self.http.request(self.uri+name+'/', "HEAD", headers=jheaders)
+        if resp.status == 200 or not debugging:
             setattr(self, name, Design(self, name, self.http))
             return getattr(self, name)
         else:
