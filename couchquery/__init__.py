@@ -30,13 +30,19 @@ class Httplib2Response(HttpResponse):
 
 class HttpClient(object):
     pass
+
+def httplib2MethodWrapper(method):
+    def m(self, path=None, headers={'content-type':'application/json'}, body=None):
+        resp, content = self.request(path, method, headers=headers, body=body)
+        return Httplib2Response(resp, content)
+    return m
     
 class Httplib2Client(HttpClient):
     def __init__(self, uri, cache=None, http_override=None):
         self.uri = uri
         self.parsed = urlparse(uri)
         if not self.uri.endswith('/'):
-            self.uri += self.uri + '/'
+            self.uri = self.uri + '/'
         
         if http_override is None:
             if '@' in self.uri:
@@ -54,17 +60,11 @@ class Httplib2Client(HttpClient):
     def request(self, path, method, headers, body):
         return self.http.request(self.uri + path, method, headers=headers, body=body)
     
-    class httplib2MethodWrapper(object):
-        def __init__(self, method):
-            self.method = method
-        def __call__(self, inst, path=None, headers={'content-type':'application/json'}, body=None):
-            resp, content = inst.request(path, self.method, headers=headers, body=body)
-            return Httplib2Response(resp, content)
-    
     get = httplib2MethodWrapper("GET")
     put = httplib2MethodWrapper("PUT")
     post = httplib2MethodWrapper("POST")
     delete = httplib2MethodWrapper("DELETE")
+    head = httplib2MethodWrapper("HEAD")
         
 
 class RowSet(object):
@@ -150,7 +150,7 @@ class View(object):
         response = self.http.get(path)
         assert response.status == 200
         result = json.loads(response.body)
-        return RowSet(self.design.views.db, result['rows'], offset=result['offset'], 
+        return RowSet(self.design.views.db, result['rows'], offset=result.get('offset', None), 
                        total_rows=result['total_rows'])
         
 
@@ -280,8 +280,9 @@ class CouchDatabase(object):
         if type(doc) not in (list, tuple, types.GeneratorType):
             response = self.http.delete(doc['_id']+'?rev='+str(doc['_rev']))
         else:
-            body = {'rows':[{'_id':doc['_id'], '_rev':doc.get('_rev'), '_deleted':True}],
-                    'all_or_nothing':all_or_nothing}
+            body = {'rows':[{'_id':doc['_id'], '_deleted':True}], 'all_or_nothing':all_or_nothing}
+            if '_rev' in body:
+                body['_rev'] = doc['_rev']
             response = self.http.post('_bulk_docs', body=json.dumps(body))
         
         if response.status == 200:
