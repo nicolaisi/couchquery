@@ -53,12 +53,8 @@ setup(name=PACKAGE_NAME,
       packages=find_packages(exclude=['test']),
       include_package_data=True,
       package_data = {'': ['*.js', '*.css', '*.html', '*.txt', '*.xpi', '*.rdf', '*.xul', '*.jsm', '*.xml' ],},
-      # entry_points="""
-      #     [console_scripts]
-      #     webenv = webenv.cli:main
-      #   """,
       platforms =['Any'],
-      install_requires = [],
+      install_requires = ['httplib2'],
       classifiers=['Development Status :: 4 - Beta',
                    'Environment :: Console',
                    'Intended Audience :: Developers',
