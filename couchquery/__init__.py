@@ -91,10 +91,18 @@ class RowSet(object):
             else: self.__offset = None
         return self.__offset
     
+    def get_offset(self, obj):
+        if not self.offset:
+            raise Exception("offset is not available for this RowSet.")
+        return self.offset + self.__rows.index(obj)
+    
     def __iter__(self):
-        for x in self.__rows:
+        for i in range(len(self.__rows)):
+            x = self.__rows[i]
             if type(x) is dict and type(x['value']) is dict and x['value'].has_key('_id'):
-                yield Document(x['value'], db=self.__db)
+                doc = Document(x['value'], db=self.__db)
+                self.__rows[i]['value'] = doc
+                yield doc
             else:
                 yield x['value']
     
@@ -120,7 +128,11 @@ class RowSet(object):
     def __len__(self):
         return len(self.__rows)    
         
-    def save(self, ): pass
+    def save(self):
+        self.__db.update(self)
+    
+    def delete(self):
+        self.__db.delete(self)
 
 # class ViewResult(dict):
 #     def __init__(self, result, db):
@@ -200,6 +212,25 @@ class Views(object):
                            total_rows=result['total_rows'])
         else:
             raise TempViewException('Status: '+str(response.status)+'\nReason: '+response['reason']+'\nBody: '+response.body)
+    
+    def all(self, include_docs=True, startkey=None, endkey=None):
+        qs = {'include_docs':include_docs}
+        if startkey is not None:
+            qs['startkey'] = startkey
+        if endkey is not None:
+            qs['endkey'] = endkey
+        response = self.http.get('_all_docs?' + '&'.join([k+'='+json.dumps(v) for k,v in qs.items()]))
+        if response.status == 200:
+            result = json.loads(response.body)
+            # Normalize alldocs to a standard view result for RowSet
+            for row in result['rows']:
+                if 'doc' in row:
+                    row['rev'] = row['value']['rev']
+                    row['value'] = row['doc']
+            return RowSet(self.db, result['rows'], offset=result['offset'], 
+                          total_rows=result['total_rows'])
+        else:
+            raise Exception(response.body)
         
     def __getattr__(self, name):
         if debugging:
@@ -215,6 +246,22 @@ class CouchDBException(Exception): pass
 class CouchDBDocumentConflict(Exception): pass
 
 class CouchDBDocumentDoesNotExist(Exception): pass
+
+def createdb(arg):
+    if type(arg) is CouchDatabase:
+        db = arg
+    else: db = Database(arg)
+    response = db.http.put('')
+    assert response.status == 201
+    return json.loads(response.body)
+
+def deletedb(arg):
+    if type(arg) is CouchDatabase:
+        db = arg
+    else: db = Database(arg)
+    response = db.http.delete('')
+    assert response.status == 200
+    return json.loads(response.body)
 
 class CouchDatabase(object):
     def __init__(self, uri, http=None, http_engine=None, cache=None):
@@ -237,7 +284,7 @@ class CouchDatabase(object):
     def create(self, doc, all_or_nothing=False):
         """Create a document. Accepts any object that can be converted in to a dict.
         If multiple documents are passed they are handed off to the bulk document handler.
-        """
+        """        
         if type(doc) not in (dict, Document, list, tuple, types.GeneratorType):
             doc = dict(doc)
         
@@ -255,11 +302,11 @@ class CouchDatabase(object):
         """Update a document. Accepts any object that can be converted in to a dict.
         If multiple documents are passed they are handed off to the bulk document handler.
         """
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType):
+        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
             doc = dict(doc)
         
         # Hand off to bulk handler when passing multiple documents    
-        if type(doc) in (list, tuple, types.GeneratorType):
+        if type(doc) in (list, tuple, types.GeneratorType, RowSet):
             return self.bulk(doc, all_or_nothing=all_or_nothing)
         
         response = self.http.put(doc['_id'], body=json.dumps(doc))
@@ -275,15 +322,14 @@ class CouchDatabase(object):
         Document/s must contain _id and _rev properties.
         If multiple documents are passed they are removed using the bulk document API.
         """
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType):
+        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
             doc = dict(doc)
-        if type(doc) not in (list, tuple, types.GeneratorType):
+        if type(doc) not in (list, tuple, types.GeneratorType, RowSet):
             response = self.http.delete(doc['_id']+'?rev='+str(doc['_rev']))
         else:
-            body = {'rows':[{'_id':doc['_id'], '_deleted':True}], 'all_or_nothing':all_or_nothing}
-            if '_rev' in body:
-                body['_rev'] = doc['_rev']
-            response = self.http.post('_bulk_docs', body=json.dumps(body))
+            for d in doc:
+                d['_deleted'] = True
+            self.bulk(d, all_or_nothing=all_or_nothing)
         
         if response.status == 200:
             return json.loads(response.body)
@@ -304,10 +350,12 @@ class CouchDatabase(object):
             return self.create(doc)
             
     def bulk(self, docs, all_or_nothing=False):
-        body = {'docs':docs, 'all_or_nothing':all_or_nothing}
+        body = {'docs':list(docs), 'all_or_nothing':all_or_nothing}
         response = self.http.post('_bulk_docs', body=json.dumps(body))
-        assert response.status == 200
-        return json.loads(response.body)
+        if response.status == 201:
+            return json.loads(response.body)
+        else:
+            raise CouchDBException("Bulk update failed "+response.body)
 
     def sync_design_doc(self, name, directory):
         document = copy.copy(design_template)
