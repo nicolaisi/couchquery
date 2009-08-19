@@ -73,7 +73,7 @@ class RowSet(object):
         self.__rows = rows
         self.__changes = []
         self.__parent = parent
-        self.__offset = None
+        self.__offset = offset
         self.rows = self # Make backwards compatible with older API
     
     def keys(self):
@@ -86,9 +86,10 @@ class RowSet(object):
     @property
     def offset(self):
         if self.__offset is None:
-            if self.__parent.offset is not None:
+            if self.__parent is not None and self.__parent.offset is not None:
                 self.__offset = self.__parent.offset + self.__parent.__rows.index(self.__rows[0])
-            else: self.__offset = None
+            else: 
+                self.__offset = None
         return self.__offset
     
     def get_offset(self, obj):
@@ -114,9 +115,16 @@ class RowSet(object):
     
     def __getitem__(self, i):
         if type(i) is int:
-            return Document(self.__rows[i]['value'], db=self.__db)
+            if ( type(self.__rows[i]) is dict ) and ( type(self.__rows[i]['value']) is dict ) and ( 
+                 self.__rows[i]['value'].has_key('_id') ):
+                doc = Document(self.__rows[i]['value'], db=self.__db)
+                self.__rows[i]['value'] = doc
+                return doc
+            else:
+                return self.__rows[i]['value']
+                        
         else:
-            return RowSet([r for r in self.__rows if r['key'] == i], parent=self)
+            return RowSet(self.__db, [r for r in self.__rows if r['key'] == i], parent=self)
         
     def __setattr__(self, name, obj):
         if name.startswith("__") or "_RowSet__db":
