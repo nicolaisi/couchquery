@@ -60,7 +60,7 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">,</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Whorfin&#39;</span><span class="p">})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-<span class="go">&lt;class &#39;couchquery.CouchDocument&#39;&gt;</span>
+<span class="go">&lt;class &#39;couchquery.Document&#39;&gt;</span>
 </pre></div>
 </div>
 <p>Document objects are just slightly extended dict objects that provide slightly simpler attribute access.</p>

@@ -28,7 +28,7 @@ After creating a new document you are given the response dict from couch which i
    >>> info = db.create({'type':'red-lectroid','name':'John Whorfin'})
    >>> doc = db.get(info['id'])
    >>> type(doc)
-   <class 'couchquery.CouchDocument'>
+   <class 'couchquery.Document'>
 
 Document objects are just slightly extended dict objects that provide slightly simpler attribute access.
 
@@ -89,7 +89,7 @@ These view functions return RowSet objects for each view result. RowSet objects 
 
    rows = db.views.banzai.lectroidByType(key="red-lectroid")
 
-Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a CouchDocument instance for the value.
+Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.
 
    for doc in rows:
       if doc.type == '

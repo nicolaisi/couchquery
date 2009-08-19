@@ -28,7 +28,7 @@ After creating a new document you are given the response dict from couch which i
    >>> info = db.create({'type':'red-lectroid','name':'John Whorfin'})
    >>> doc = db.get(info['id'])
    >>> type(doc)
-   <class 'couchquery.CouchDocument'>
+   <class 'couchquery.Document'>
 
 Document objects are just slightly extended dict objects that provide slightly simpler attribute access.
 
