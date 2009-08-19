@@ -256,7 +256,7 @@ class CouchDBDocumentConflict(Exception): pass
 class CouchDBDocumentDoesNotExist(Exception): pass
 
 def createdb(arg):
-    if type(arg) is CouchDatabase:
+    if type(arg) is Database:
         db = arg
     else: db = Database(arg)
     response = db.http.put('')
@@ -264,14 +264,14 @@ def createdb(arg):
     return json.loads(response.body)
 
 def deletedb(arg):
-    if type(arg) is CouchDatabase:
+    if type(arg) is Database:
         db = arg
     else: db = Database(arg)
     response = db.http.delete('')
     assert response.status == 200
     return json.loads(response.body)
 
-class CouchDatabase(object):
+class Database(object):
     def __init__(self, uri, http=None, http_engine=None, cache=None):
         self.uri = uri
         if type(http) is httplib2.Http:
@@ -285,7 +285,7 @@ class CouchDatabase(object):
         response = self.http.get(_id)
         if response.status == 200:
             obj = dict([(str(k),v,) for k,v in json.loads(response.body).items()])
-            return CouchDocument(obj, db=self)
+            return Document(obj, db=self)
         else:
             raise CouchDBDocumentDoesNotExist("No document at id "+_id)
     
@@ -385,23 +385,21 @@ class CouchDatabase(object):
         
         return self.save(document)
 
-Database = CouchDatabase
+Database = Database
 
 def set_global_db(_gdb):
     global global_db
     global_db = _gdb
 
-class CouchDocument(dict):
+class Document(dict):
     def __init__(self, *args, **kwargs):
         if 'db' in kwargs:
             object.__setattr__(self, 'db', kwargs.pop('db'))
-        super(CouchDocument, self).__init__(*args, **kwargs)
+        super(Document, self).__init__(*args, **kwargs)
     
     __getattr__ = dict.__getitem__
     def __setattr__(self, k, v):
         self[k] = v
-
-Document = CouchDocument
 
 # from asynchttp import AsyncHTTPConnection
 # 
