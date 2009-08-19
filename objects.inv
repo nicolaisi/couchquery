@@ -1,0 +1,4 @@
+# Sphinx inventory version 1
+# Project: couchquery
+# Version: 0.3
+couchquery mod index.html

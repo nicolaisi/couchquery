@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>couchquery – A Python library for CouchDB &mdash; couchquery v0.3 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="couchquery v0.3 documentation" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             accesskey="M">modules</a> |</li>
+        <li><a href="">couchquery v0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="couchquery-a-python-library-for-couchdb">
+<h1>couchquery &#8211; A Python library for CouchDB<a class="headerlink" href="#couchquery-a-python-library-for-couchdb" title="Permalink to this headline">¶</a></h1>
+<p>CouchDB is not a relational database. The purpose of couchquery is to provide a simple, flexible and dynamic interface for creating, updating and deleting documents and working with views.</p>
+<ul class="simple">
+</ul>
+<div class="section" id="working-with-documents">
+<h2>Working with Documents<a class="headerlink" href="#working-with-documents" title="Permalink to this headline">¶</a></h2>
+<p>Create a database object for any CouchDB database you would like to interact with.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s">&#39;http://localhost:5984/buckaroo&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a new document in the database.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">,</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Whorfin&#39;</span><span class="p">})</span>
+<span class="go">{u&#39;rev&#39;: u&#39;1-4198154595&#39;, u&#39;ok&#39;: True, u&#39;id&#39;: u&#39;c581bbc8fd32f49ecb2f8668ed71fe9b&#39;}</span>
+</pre></div>
+</div>
+<p>After creating a new document you are given the response dict from couch which includes the id of the document. You can also get documents by id.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">,</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Whorfin&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+<span class="go">&lt;class &#39;couchquery.CouchDocument&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Document objects are just slightly extended dict objects that provide slightly simpler attribute access.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&quot;John Worfin&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+<span class="go">&quot;John Worfin&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="s">&quot;The 8th Dimension&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;location&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;fakeattribute&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>When saving documents you must have the latest revision.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you do not have the latest revision you&#8217;ll get a CouchDBDocumentConflict exception.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">old_doc</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n-Identifier">&lt;module&gt;</span>
+  File <span class="nb">&quot;/Users/mikeal/Documents/git/couchquery/couchquery/__init__.py&quot;</span>, line <span class="m">271</span>, in <span class="n-Identifier">update</span>
+    <span class="k">raise</span> <span class="n">CouchDBException</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+<span class="nc">couchquery.CouchDBException</span>: <span class="n-Identifier">{&quot;error&quot;:&quot;conflict&quot;,&quot;reason&quot;:&quot;Document update conflict.&quot;}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-views">
+<h2>Creating views<a class="headerlink" href="#creating-views" title="Permalink to this headline">¶</a></h2>
+<p>Futon is great, but I like to check my design documents in to version control so that I can push and pull changes to them from different contributors on github.</p>
+<p>With couchquery you can create a single directory for each design document where each subdirectory is a view in that design document. Inside the view directories you write a map.js and optional reduce.js file which contains your view functions:</p>
+<div class="highlight-python"><pre>$ du -a views
+32      views
+8       views/lectroidByType
+8       views/lectroidByType/map.js
+8       views/byType
+8       views/byType/map.js
+8       views/byType/reduce.js</pre>
+</div>
+<p>You can then &#8220;sync&#8221; this directory as a design document in your database.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">db</span><span class="o">.</span><span class="n">sync_design_doc</span><span class="p">(</span><span class="s">&#39;banzai&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;views&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Now your directory of views is a design document in the database.</p>
+</div>
+<div class="section" id="working-with-views">
+<h2>Working with views<a class="headerlink" href="#working-with-views" title="Permalink to this headline">¶</a></h2>
+<p>The couchquery views API is simple and straight forward provided you already have some understanding of how CouchDB views work.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&quot;red-lectroid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The view API provides functions for each view that accept keyword arguments which are then converted in to query string arguments to the CouchDB HTTP View API.</p>
+<p>These view functions return RowSet objects for each view result.</p>
+</div>
+</div>
+<div class="section" id="module-couchquery">
+<h1><tt class="xref docutils literal"><span class="pre">couchquery</span></tt> &#8212; Simple CouchDB module.<a class="headerlink" href="#module-couchquery" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">couchquery &#8211; A Python library for CouchDB</a><ul>
+<li><a class="reference external" href="#working-with-documents">Working with Documents</a></li>
+<li><a class="reference external" href="#creating-views">Creating views</a></li>
+<li><a class="reference external" href="#working-with-views">Working with views</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#module-couchquery"><tt class="docutils literal"><span class="pre">couchquery</span></tt> &#8212; Simple CouchDB module.</a></li>
+</ul>
+
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="modindex.html" title="Global Module Index"
+             >modules</a> |</li>
+        <li><a href="">couchquery v0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Mikeal Rogers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.2.
+    </div>
+  </body>
+</html>
