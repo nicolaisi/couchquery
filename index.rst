@@ -92,7 +92,11 @@ These view functions return RowSet objects for each view result. RowSet objects 
 Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.
 
    for doc in rows:
-      if doc.type == '
+       if "lectroid" in doc.type:
+           doc.species = 'lectroid'
+   rows.save()
+   
+You can use RowSet.save() to 
 
 
 :mod:`couchquery` --- Simple CouchDB module.

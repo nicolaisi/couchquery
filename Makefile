@@ -5,6 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
+CLEANUP       = "/Users/mikeal/Documents/git/couchquery/cleanup.py"
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -33,6 +34,7 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) .
 	@echo
 	@echo "Build finished. The HTML pages are in ."
+	$(CLEANUP)
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) dirbuild/dirhtml

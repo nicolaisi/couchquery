@@ -85,7 +85,18 @@ The couchquery views API is simple and straight forward provided you already hav
 
 The view API provides functions for each view that accept keyword arguments which are then converted in to query string arguments to the CouchDB HTTP View API.
 
-These view functions return RowSet objects for each view result.
+These view functions return RowSet objects for each view result. RowSet objects are one of the major highlights of couchquery. A RowSet object represents the **result** of a CouchDB query, it is not an abstraction of the query itself.::
+
+   rows = db.views.banzai.lectroidByType(key="red-lectroid")
+
+Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.
+
+   for doc in rows:
+       if "lectroid" in doc.type:
+           doc.species = 'lectroid'
+   rows.save()
+   
+You can use RowSet.save() to 
 
 
 :mod:`couchquery` --- Simple CouchDB module.
