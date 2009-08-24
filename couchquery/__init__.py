@@ -83,6 +83,9 @@ class RowSet(object):
     def ids(self):
         return [x['id'] for x in self.__rows]
         
+    def items(self, key='key', value='value'):
+        return [(r[key], r[value],) for r in self.__rows]
+        
     @property
     def offset(self):
         if self.__offset is None:
@@ -100,7 +103,7 @@ class RowSet(object):
     def __iter__(self):
         for i in range(len(self.__rows)):
             x = self.__rows[i]
-            if type(x) is dict and type(x['value']) is dict and x['value'].has_key('_id'):
+            if type(x) is dict and type(x) is not Document and type(x['value']) is dict and x['value'].has_key('_id'):
                 doc = Document(x['value'], db=self.__db)
                 self.__rows[i]['value'] = doc
                 yield doc
@@ -115,7 +118,9 @@ class RowSet(object):
     
     def __getitem__(self, i):
         if type(i) is int:
-            if ( type(self.__rows[i]) is dict ) and ( type(self.__rows[i]['value']) is dict ) and ( 
+            if ( type(self.__rows[i]) is dict ) and (
+                 type(self.__rows[i]) is not Document ) and ( 
+                 type(self.__rows[i]['value']) is dict ) and ( 
                  self.__rows[i]['value'].has_key('_id') ):
                 doc = Document(self.__rows[i]['value'], db=self.__db)
                 self.__rows[i]['value'] = doc
@@ -171,7 +176,7 @@ class View(object):
         assert response.status == 200
         result = json.loads(response.body)
         return RowSet(self.design.views.db, result['rows'], offset=result.get('offset', None), 
-                       total_rows=result['total_rows'])
+                       total_rows=result.get('total_rows'))
         
 
 class Design(object):
