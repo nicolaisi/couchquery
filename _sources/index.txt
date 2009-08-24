@@ -4,17 +4,24 @@
    contain the root `toctree` directive.
 
 couchquery -- A Python library for CouchDB
-======================================
+==========================================
+
+.. module:: couchquery
+   :synopsis: Simple CouchDB interface.
+.. moduleauthor:: Mikeal Rogers <mikeal.rogers@gmail.com>
+.. sectionauthor:: Mikeal Rogers <mikeal.rogers@gmail.com>
 
 CouchDB is not a relational database. The purpose of couchquery is to provide a simple, flexible and dynamic interface for creating, updating and deleting documents and working with views.
 
 .. toctree::
    :maxdepth: 2
 
+.. _working-with-documents:
+
 Working with Documents
 ----------------------
 
-Create a database object for any CouchDB database you would like to interact with.
+Create a :class:`Database` object for any CouchDB database you would like to interact with.
 
    >>> db = Database('http://localhost:5984/buckaroo')
 
@@ -30,7 +37,7 @@ After creating a new document you are given the response dict from couch which i
    >>> type(doc)
    <class 'couchquery.Document'>
 
-Document objects are just slightly extended dict objects that provide slightly simpler attribute access.
+:class:`Document` objects are just slightly extended dict objects that provide slightly simpler attribute access.
 
    >>> doc.name
    "John Worfin"
@@ -46,7 +53,7 @@ When saving documents you must have the latest revision.
 
    >>> db.update(doc)
 
-If you do not have the latest revision you'll get a CouchDBDocumentConflict exception.
+If you do not have the latest revision you'll get a :exc:`CouchDBDocumentConflict` exception.
 
    >>> db.update(old_doc)
    Traceback (most recent call last):
@@ -54,6 +61,13 @@ If you do not have the latest revision you'll get a CouchDBDocumentConflict exce
      File "/Users/mikeal/Documents/git/couchquery/couchquery/__init__.py", line 271, in update
        raise CouchDBException(response.body)
    couchquery.CouchDBException: {"error":"conflict","reason":"Document update conflict."}
+   
+:meth:`Database.create`, :meth:`Database.update` and :meth:`Database.delete` all support bulk operations when :term:`iterable` types are passed.
+
+   db.create([{'type':'red-lectroid', 'name':'John Bigboote'},
+              {'type':'red-lectroid', 'name':"John O'Connor"},])
+   
+.. _creating-views:
    
 Creating views
 --------------
@@ -76,6 +90,8 @@ You can then "sync" this directory as a design document in your database.::
 
 Now your directory of views is a design document in the database.
 
+.. _working-with-views:
+
 Working with views
 ------------------
 
@@ -85,25 +101,25 @@ The couchquery views API is simple and straight forward provided you already hav
 
 The view API provides functions for each view that accept keyword arguments which are then converted in to query string arguments to the CouchDB HTTP View API.
 
-These view functions return RowSet objects for each view result. RowSet objects are one of the major highlights of couchquery. A RowSet object represents the **result** of a CouchDB query, it is not an abstraction of the query itself.::
+These view functions return :class:`RowSet` objects for each view result. :class:`RowSet` objects are one of the major highlights of couchquery. A RowSet object represents the **result** of a CouchDB query, it is not an abstraction of the query itself.::
 
    rows = db.views.banzai.lectroidByType(key="red-lectroid")
 
-Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.::
+Iterating over a :class:`RowSet` object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.::
 
    for doc in rows:
        if "lectroid" in doc.type:
            doc.species = 'lectroid'
    rows.save()
    
-You can use RowSet.save() to save all changes made to the values in the RowSet provided the values are documents.::
+You can use :meth:`RowSet.save()` to save all changes made to the values in the :class:`RowSet` provided the values are documents.::
 
    >>> type(rows[0])
    <class 'couchquery.Document'>
    >>> type(rows['red-lectroid'])
    <class 'couchquery.RowSet'>
 
-You can get a value in the RowSet by position using list style syntax. Dictionary syntax allows you to get new RowSet objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.::
+You can get a value in the :class:`RowSet` by position using list style syntax. Dictionary syntax allows you to get new :class:`RowSet` objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.::
 
    >>> rows = db.views.banzai.lectroidByType(startkey=None, endkey={})
    >>> red_lectroids = rows['red-lectroid']
@@ -129,7 +145,7 @@ RowSet objects also have convenient methods for working with the ids and keys, o
    >>> type(rows.values())
    <type 'list'>
 
-Another convenient method is RowSet.items() which returns a list of (key, value) tuples for the keys and values in the view result.::
+Another convenient method is :meth:`items` which returns a list of (key, value) tuples for the keys and values in the view result.::
 
    for key, value in rows.items():
        if 'lectroid' in key:
@@ -151,9 +167,133 @@ The contains operations are also customized. String values are checked against t
 :mod:`couchquery` --- Simple CouchDB module.
 ======================================================================
 
-.. module:: couchquery
-   :synopsis: Simple CouchDB interface.
-.. moduleauthor:: Mikeal Rogers <mikeal.rogers@gmail.com>
-.. sectionauthor:: Mikeal Rogers <mikeal.rogers@gmail.com>
 
+.. attribute:: debugging
 
+   Defaults to :const:`True`. When set to :const:`True` accessing most dynamic attributes will be
+   validated with *HTTP HEAD* requests for the resources. This incurs additional delay in accessing most 
+   views for the first time but results in more accurate exceptions. 
+
+.. class:: Database(uri[, http[, http_engine[, cache]]])
+
+   *uri* is the full http uri to the CouchDB database.
+   
+   *http* can be an instance of :class:`httplib2.Http` or an instance of one of the 
+   :class:`HttpClient` subclasses. The default is to create an instance of :class:`Httplib2Client` 
+   for the given uri.
+   
+   *cache* is an argument specifically passed to :class:`httplib2.Http`, it is special cased for reverse 
+   compatibility with an older version of this API.
+   
+   .. method:: get(_id)
+      
+      Get a single document by *_id* from the database.
+   
+      Returns a :class:`Document` object for the given *_id* in the database.
+      
+   .. method:: create(doc[, all_or_nothing])
+   
+      Create a document. Accepts any object that can be converted in to a dict.
+      If multiple documents are passed they are handed off to the bulk document handler.
+      
+      Uses the HTTP POST interface for creating documents in CouchDB. If :func:`list`, :func:`tuple` or 
+      :class:`types.GeneratorType` types are passed then the creation is handed off to 
+      :func:`Database.bulk` with *all_or_nothing* passed as well. *all_or_nothing* defaults to 
+      :const:`False`.
+   
+   .. method:: update(doc[, all_or_nothing])
+   
+      Update a document. Accepts any object that can be converted in to a dict.
+      If multiple documents are passed they are handed off to the bulk document handler.
+      
+      Uses the HTTP PUT interface for updating documents in CouchDB.  If :func:`list`, :func:`tuple`, 
+      :class:`types.GeneratorType` or :class:`RowSet` types are passed then the update is handed off to 
+      :func:`Database.bulk` with *all_or_nothing* passed as well. *all_or_nothing* defaults to 
+      :const:`False`.
+   
+   .. method:: delete(doc[, all_or_nothing])
+   
+      Delete a document. Accepts any object that can be converted in to a dict.
+      Document/s must contain _id and _rev properties.
+      If multiple documents are passed they are removed using the bulk document API.
+
+      Uses the HTTP DELETE interface for updating documents in CouchDB.  If :func:`list`, :func:`tuple`, 
+      :class:`types.GeneratorType` or :class:`RowSet` types are passed then the delete is handed off to 
+      :meth:`bulk` with *all_or_nothing* passed as well. *all_or_nothing* defaults to 
+      :const:`False`.
+      
+   .. method:: save(doc[, all_or_nothing])
+   
+      Smart save method. Hands off to bulk, create, or update.
+      
+      If :func:`list`, :func:`tuple`, :class:`types.GeneratorType` or :class:`RowSet` types are passed
+      they are handed off to :func:`Database.bulk`. If the object represents a single document then it is 
+      checked for the *_id* item and if accessible then it is passed to `update` if not then it is sent 
+      to `create`. *all_or_nothing* defaults to :const:`False`.
+      
+   .. method:: sync_design_doc(name, path)
+   
+      Sync a directory structure with proper map.js and reduce.js files at `path` as a desing document
+      named `name`. Document above in :ref:`creating-views` 
+      
+   .. attribute:: views
+   
+      Instance of :class:`Views` for this CouchDB Database.
+   
+.. function:: createdb(db)
+
+   Accepts either an instance of :class:`Database` or a uri to the database. Will cause an HTTP PUT 
+   request to create the new database, validate the response code, and return you decoded response body.
+   
+.. function:: deletedb(db)
+   
+   Accepts either an instance of :class:`Database` or a uri to the database. Will cause an HTTP DELETE 
+   request to remove database, validate the response code, and return you decoded response body.
+   
+.. class:: Document([*args[, **kwargs]])
+   
+   Subclass of :func:`dict`. __setattr__, __getattr__ and __delattr__ are linked to __setitem__, 
+   __getitem__ and __delitem__ respectively to support a shorter attribute access and manipulation
+   syntax.
+   
+.. class:: Views(db)
+
+   CouchDB Views API. 
+   
+   Requires a :class:`Database` instance.
+   
+   Supports dynamic attribute access for design document containers by name.::
+   
+      >>> type(db.views.bonzai)
+      <class 'couchquery.Design'>
+   
+   The design document is checked to be valid via an HTTP HEAD request if :attr:`debugging` is set.
+   
+   .. method:: all([include_docs[, startkey[, endkey[, keys]]]])
+   
+      Interface for the CouchDB _all_docs HTTP REST API.
+      
+      include_docs defaults to :const:`True`. keys, startkey, and endkey all default to :const:`None` and 
+      are not used unless set to a value other than None.
+      
+      Returns a :class:`RowSet` instance for the returned results. The values in the :class:`RowSet` are 
+      set to  the docuemnts when include_docs is :const:`True` to make the returned result closer to a 
+      standard view result.
+      
+   .. method temp_view(map[, reduce[, **kwargs]])
+
+      Creates a temp view and returns a :class:`RowSet` object for the given query against it.
+      
+      All HTTP view arguments are accepted as keyword arguments. Optionally pass reduce method.
+      
+      `map` and `reduce` arguments should be strings that can be `eval()` in to proper JavaScript 
+      functions.
+      
+.. class:: Design(db, _id)
+      
+      Represents access to a given Design document. Part of the View access API document in 
+      :ref:`working-with-views`.
+   
+      Customized attribute access
+   
+   
