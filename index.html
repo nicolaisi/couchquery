@@ -118,19 +118,63 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&quot;red-lectroid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.</p>
-<blockquote>
-<dl class="docutils">
-<dt>for doc in rows:</dt>
-<dd><dl class="first last docutils">
-<dt>if &#8220;lectroid&#8221; in doc.type:</dt>
-<dd>doc.species = &#8216;lectroid&#8217;</dd>
-</dl>
-</dd>
-</dl>
-<p>rows.save()</p>
-</blockquote>
-<p>You can use RowSet.save() to</p>
+<p>Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s">&quot;lectroid&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="s">&#39;lectroid&#39;</span>
+<span class="n">rows</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can use RowSet.save() to save all changes made to the values in the RowSet provided the values are documents.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span>
+<span class="go">&lt;class &#39;couchquery.Document&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">])</span>
+<span class="go">&lt;class &#39;couchquery.RowSet&#39;&gt;</span>
+</pre></div>
+</div>
+<p>You can get a value in the RowSet by position using list style syntax. Dictionary syntax allows you to get new RowSet objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">startkey</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">endkey</span><span class="o">=</span><span class="p">{})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>When applicable, properties like RowSet.offset are preserved and calculated for the new RowSet instance.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectorids</span><span class="o">.</span><span class="n">offset</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>RowSet objects only assume that values are Documents if they have _id attributes. If not, the value itself is returned by all these value APIs.</p>
+<p>RowSet objects also have convenient methods for working with the ids and keys, or more explicitly with values.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">ids</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="go">&lt;type &#39;list&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Another convenient method is RowSet.items() which returns a list of (key, value) tuples for the keys and values in the view result.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s">&#39;lectroid&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s">&#39;John&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">name</span>
+</pre></div>
+</div>
+<p>The contains operations are also customized. String values are checked against the id&#8217;s in the result while other objects are checked against the values.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&#39;type&#39;</span><span class="p">:</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Parker&#39;</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">red_lectroids</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectroids</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">black_lectroids</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">black_lectroids</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="module-couchquery">

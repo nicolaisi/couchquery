@@ -89,14 +89,63 @@ These view functions return RowSet objects for each view result. RowSet objects 
 
    rows = db.views.banzai.lectroidByType(key="red-lectroid")
 
-Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.
+Iterating over a RowSet object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.::
 
    for doc in rows:
        if "lectroid" in doc.type:
            doc.species = 'lectroid'
    rows.save()
    
-You can use RowSet.save() to 
+You can use RowSet.save() to save all changes made to the values in the RowSet provided the values are documents.::
+
+   >>> type(rows[0])
+   <class 'couchquery.Document'>
+   >>> type(rows['red-lectroid'])
+   <class 'couchquery.RowSet'>
+
+You can get a value in the RowSet by position using list style syntax. Dictionary syntax allows you to get new RowSet objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.::
+
+   >>> rows = db.views.banzai.lectroidByType(startkey=None, endkey={})
+   >>> red_lectroids = rows['red-lectroid']
+   >>> black_lectroids = rows['black-lectroid']
+
+When applicable, properties like RowSet.offset are preserved and calculated for the new RowSet instance.::
+   
+   >>> rows.offset
+   0
+   >>> red_lectroids.offset
+   2
+   >>> black_lectorids.offset
+   0
+
+RowSet objects only assume that values are Documents if they have _id attributes. If not, the value itself is returned by all these value APIs.
+
+RowSet objects also have convenient methods for working with the ids and keys, or more explicitly with values.::
+
+   >>> type(rows.keys())
+   <type 'list'>
+   >>> type(rows.ids())
+   <type 'list'>
+   >>> type(rows.values())
+   <type 'list'>
+
+Another convenient method is RowSet.items() which returns a list of (key, value) tuples for the keys and values in the view result.::
+
+   for key, value in rows.items():
+       if 'lectroid' in key:
+           assert 'John' in value.name
+
+The contains operations are also customized. String values are checked against the id's in the result while other objects are checked against the values.
+
+   >>> info = db.create({'type':'black-lectroid', 'name':'John Parker'})
+   >>> red_lectroids = db.views.banzai.lectroidByType(key='red-lectroid')
+   >>> info['id'] in red_lectroids
+   False
+   >>> black_lectroids = db.views.banzai.lectroidByType(key='black-lectroid')
+   >>> info['id'] in black_lectroids
+   True
+   >>> db.get(info['id']) in black_lectroids
+   True
 
 
 :mod:`couchquery` --- Simple CouchDB module.
