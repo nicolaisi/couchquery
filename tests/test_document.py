@@ -66,6 +66,12 @@ def test_keys_in_all():
     a = db.views.all()
     two = db.views.all(keys=[a[0]["_id"], a[1]["_id"]])
     assert (two[0], two[1]) == (a[0], a[1])
+
+def test_items():
+    a = db.views.banzai.byType()
+    assert a.items()[0][0] == 'black-lectroid'
+    assert type(a.items()[0][1]) is Document
+    assert type(a.items(key='value')[0][0]) is Document
     
 # def test_bulk_delete():
 #     alldocs = db.views.all()

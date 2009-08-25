@@ -74,17 +74,26 @@ class RowSet(object):
         self.__changes = []
         self.__parent = parent
         self.__offset = offset
-        self.rows = self # Make backwards compatible with older API
     
     def keys(self):
         return [x['key'] for x in self.__rows]
     def values(self):
-        return [x['value'] for x in self.__rows]
+        return [x for x in self]
     def ids(self):
         return [x['id'] for x in self.__rows]
         
     def items(self, key='key', value='value'):
-        return [(r[key], r[value],) for r in self.__rows]
+        if value == 'value':
+            values = self.values()
+        else:
+            values = [x[value] for x in self.__rows]
+            
+        if key == 'value':
+            keys = self.values()
+        else:
+            keys = [x[key] for x in self.__rows]
+            
+        return map(lambda x, y: (x,y,), keys, values)
         
     @property
     def offset(self):
