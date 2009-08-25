@@ -283,6 +283,8 @@ class Database(object):
             self.http = Httplib2Client(uri, http_override=http)
         elif http_engine is None:
             self.http = Httplib2Client(uri, cache)
+        else:
+            self.http = http
         self.views = Views(self, self.http)
         
     def get(self, _id):
@@ -298,11 +300,11 @@ class Database(object):
         """Create a document. Accepts any object that can be converted in to a dict.
         If multiple documents are passed they are handed off to the bulk document handler.
         """        
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType):
+        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
             doc = dict(doc)
         
         # Hand off to bulk handler when passing multiple documents    
-        if type(doc) in (list, tuple, types.GeneratorType):
+        if type(doc) in (list, tuple, types.GeneratorType, RowSet):
             return self.bulk(doc, all_or_nothing=all_or_nothing)
             
         response = self.http.post('', body=json.dumps(doc))
@@ -350,11 +352,11 @@ class Database(object):
             raise CouchDBException("Delete failed "+response.body)
     
     def save(self, doc, all_or_nothing=False):
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType):
+        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
             doc = dict(doc)
         
         # Hand off to bulk handler when passing multiple documents    
-        if type(doc) in (list, tuple, types.GeneratorType):
+        if type(doc) in (list, tuple, types.GeneratorType, RowSet):
             return self.bulk(doc, all_or_nothing=all_or_nothing)    
             
         if doc.has_key('_id') :
