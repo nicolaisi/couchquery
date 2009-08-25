@@ -156,11 +156,9 @@ class RowSet(object):
 #         return len(self.result["rows"])
 
 class View(object):
-    def __init__(self, design, name, http):
-        self.design = design
-        self.name = name
-        self.path = self.design.path+'_view/'+name+'/'
-        self.http = http
+    def __init__(self, db, path):
+        self.db = db
+        self.path = path
     def __call__(self, async=False, twisted=False, callback=None, **kwargs):
         for k, v in kwargs.items():
             if type(v) is bool:
@@ -172,24 +170,22 @@ class View(object):
             path = self.path + '?' + query_string
         else:
             path = self.path
-        response = self.http.get(path)
+        response = self.db.http.get(path)
         assert response.status == 200
         result = json.loads(response.body)
-        return RowSet(self.design.views.db, result['rows'], offset=result.get('offset', None), 
+        return RowSet(self.db, result['rows'], offset=result.get('offset', None), 
                        total_rows=result.get('total_rows'))
         
 
 class Design(object):
-    def __init__(self, views, name, http):
-        self.views = views
-        self.name = name
-        self.path = self.views.path+self.name+'/'
-        self.http = http
+    def __init__(self, db, _id):
+        self.db = db
+        self._id = _id
     def __getattr__(self, name):
         if debugging:    
-            response = self.http.head(self.path+'_view/'+name+'/')
+            response = self.db.http.head(self._id+'/_view/'+name+'/')
         if not debugging or response.status == 200:
-            setattr(self, name, View(self, name, self.http))
+            setattr(self, name, View(self.db, self._id+'/_view/'+name+'/'))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name+". "+response.body)
@@ -248,7 +244,7 @@ class Views(object):
         if debugging:
             response = self.db.http.head(self.path+name+'/')
         if not debugging or response.status == 200:
-            setattr(self, name, Design(self, name, self.db.http))
+            setattr(self, name, Design(self.db, '_design/'+name))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name)
