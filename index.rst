@@ -14,7 +14,7 @@ couchquery -- A Python library for CouchDB
 CouchDB is not a relational database. The purpose of couchquery is to provide a simple, flexible and dynamic interface for creating, updating and deleting documents and working with views.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
 .. _working-with-documents:
 
