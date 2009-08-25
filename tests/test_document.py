@@ -37,6 +37,12 @@ def test_views():
     assert type(rows[0]) is Document
     assert rows.offset is 0
 
+def test_view_keys():
+    rows = db.views.banzai.byType(keys=['red-lectroid', 'black-lectroid'])
+    assert len(rows) is 8
+    assert 'red-lectroid' in rows.keys()
+    assert 'black-lectroid' in rows.keys()
+
 def test_subview():    
     rows = db.views.banzai.byType()
     reds = rows['red-lectroid']
