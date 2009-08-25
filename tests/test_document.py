@@ -43,6 +43,14 @@ def test_subview():
     assert len(reds) is 6
     assert type(rows[0]) is Document
     assert reds.offset is 2
+    
+def test_document():
+    doc = db.views.banzai.byType()[0]
+    doc.blah = 'asdf'
+    assert dict(doc)['blah'] == 'asdf'
+    assert 'blah' in doc
+    del doc.blah
+    assert 'blah' not in doc
 
 def test_bulk_add():
     db.create(lectroids)
