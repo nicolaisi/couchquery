@@ -159,13 +159,16 @@ class View(object):
     def __init__(self, db, path):
         self.db = db
         self.path = path
-    def __call__(self, async=False, twisted=False, callback=None, **kwargs):
-        for k, v in kwargs.items():
-            if type(v) is bool:
-                kwargs[k] = str(v).lower()
-            if k in ['key', 'startkey', 'endkey']:
-                kwargs[k] = json.dumps(v)
-        query_string = urllib.urlencode(kwargs)
+    def __call__(self, **kwargs):
+        # for k, v in kwargs.items():
+        #     if type(v) is bool:
+        #         kwargs[k] = str(v).lower()
+        #     if k in ['key', 'startkey', 'endkey']:
+        #         kwargs[k] = json.dumps(v)
+        
+        qs = dict([(k,json.dumps(v),) for k,v in kwargs.items() if 'docid' not in key and key != 'stale'])
+        
+        query_string = urllib.urlencode(qs)
         if len(query_string) is not 0:
             path = self.path + '?' + query_string
         else:
