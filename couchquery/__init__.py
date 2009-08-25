@@ -104,10 +104,10 @@ class RowSet(object):
                 self.__offset = None
         return self.__offset
     
-    def get_offset(self, obj):
+    def get_offset(self, obj, key='value'):
         if not self.offset:
             raise Exception("offset is not available for this RowSet.")
-        return self.offset + self.__rows.index(obj)
+        return self.offset + [x[key] for x in self.__rows].index(obj)
     
     def __iter__(self):
         for i in range(len(self.__rows)):
