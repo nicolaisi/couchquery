@@ -121,25 +121,25 @@
 </pre></div>
 </div>
 <p>The view API provides functions for each view that accept keyword arguments which are then converted in to query string arguments to the CouchDB HTTP View API.</p>
-<p>These view functions return <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> objects for each view result. <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> objects are one of the major highlights of couchquery. A RowSet object represents the <strong>result</strong> of a CouchDB query, it is not an abstraction of the query itself.:</p>
+<p>These view functions return <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects for each view result. <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects are one of the major highlights of couchquery. A RowSet object represents the <strong>result</strong> of a CouchDB query, it is not an abstraction of the query itself.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s">&quot;red-lectroid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Iterating over a <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.:</p>
+<p>Iterating over a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> object yields the values from the view result. If the values are documents then it will yield a Document instance for the value.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
     <span class="k">if</span> <span class="s">&quot;lectroid&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="s">&#39;lectroid&#39;</span>
 <span class="n">rows</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>You can use <tt class="xref docutils literal"><span class="pre">RowSet.save()</span></tt> to save all changes made to the values in the <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> provided the values are documents.:</p>
+<p>You can use <a title="couchquery.RowSet.save" class="reference internal" href="#couchquery.RowSet.save"><tt class="xref docutils literal"><span class="pre">RowSet.save()</span></tt></a> to save all changes made to the values in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> provided the values are documents.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mf">0</span><span class="p">])</span>
 <span class="go">&lt;class &#39;couchquery.Document&#39;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">])</span>
 <span class="go">&lt;class &#39;couchquery.RowSet&#39;&gt;</span>
 </pre></div>
 </div>
-<p>You can get a value in the <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> by position using list style syntax. Dictionary syntax allows you to get new <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.:</p>
+<p>You can get a value in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> by position using list style syntax. Dictionary syntax allows you to get new <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> objects for the selection of rows in the result that matched the given key, this is useful when doing range queries because you can get subsets of the range without making additional queries to the server.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">banzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">(</span><span class="n">startkey</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">endkey</span><span class="o">=</span><span class="p">{})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">red_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;red-lectroid&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">black_lectroids</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="s">&#39;black-lectroid&#39;</span><span class="p">]</span>
@@ -227,7 +227,7 @@ If multiple documents are passed they are handed off to the bulk document handle
 <dd><p>Update a document. Accepts any object that can be converted in to a dict.
 If multiple documents are passed they are handed off to the bulk document handler.</p>
 <p>Uses the HTTP PUT interface for updating documents in CouchDB.  If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>,
-<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> types are passed then the update is handed off to
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed then the update is handed off to
 <tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt> with <em>all_or_nothing</em> passed as well. <em>all_or_nothing</em> defaults to
 <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
 </dd></dl>
@@ -239,7 +239,7 @@ If multiple documents are passed they are handed off to the bulk document handle
 Document/s must contain _id and _rev properties.
 If multiple documents are passed they are removed using the bulk document API.</p>
 <p>Uses the HTTP DELETE interface for updating documents in CouchDB.  If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>,
-<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> types are passed then the delete is handed off to
+<a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed then the delete is handed off to
 <tt class="xref docutils literal"><span class="pre">bulk()</span></tt> with <em>all_or_nothing</em> passed as well. <em>all_or_nothing</em> defaults to
 <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
 </dd></dl>
@@ -248,7 +248,7 @@ If multiple documents are passed they are removed using the bulk document API.</
 <dt id="couchquery.Database.save">
 <tt class="descname">save</tt><big>(</big><em>doc</em><span class="optional">[</span>, <em>all_or_nothing</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.Database.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Smart save method. Hands off to bulk, create, or update.</p>
-<p>If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> types are passed
+<p>If <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#list"><tt class="xref docutils literal"><span class="pre">list()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#tuple"><tt class="xref docutils literal"><span class="pre">tuple()</span></tt></a>, <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/types.html#types.GeneratorType"><tt class="xref docutils literal"><span class="pre">types.GeneratorType</span></tt></a> or <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> types are passed
 they are handed off to <tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt>. If the object represents a single document then it is
 checked for the <em>_id</em> item and if accessible then it is passed to <cite>update</cite> if not then it is sent
 to <cite>create</cite>. <em>all_or_nothing</em> defaults to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#False"><tt class="xref xref docutils literal"><span class="pre">False</span></tt></a>.</p>
@@ -305,7 +305,7 @@ class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Views<
 <dd><p>Interface for the CouchDB _all_docs HTTP REST API.</p>
 <p>include_docs defaults to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a>. keys, startkey, and endkey all default to <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#None"><tt class="xref xref docutils literal"><span class="pre">None</span></tt></a> and
 are not used unless set to a value other than None.</p>
-<p>Returns a <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> instance for the returned results. The values in the <tt class="xref docutils literal"><span class="pre">RowSet</span></tt> are
+<p>Returns a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> instance for the returned results. The values in the <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> are
 set to  the docuemnts when include_docs is <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/constants.html#True"><tt class="xref xref docutils literal"><span class="pre">True</span></tt></a> to make the returned result closer to a
 standard view result.</p>
 </dd></dl>
@@ -318,7 +318,85 @@ standard view result.</p>
 class </em><tt class="descclassname">couchquery.</tt><tt class="descname">Design</tt><big>(</big><em>db</em>, <em>_id</em><big>)</big><a class="headerlink" href="#couchquery.Design" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents access to a given Design document. Part of the View access API document in
 <a class="reference internal" href="#working-with-views"><em>Working with views</em></a>.</p>
-<p>Customized attribute access</p>
+<p>This object has customized attribute access which returns a <a title="couchquery.View" class="reference internal" href="#couchquery.View"><tt class="xref docutils literal"><span class="pre">View</span></tt></a> object for a view
+in the design document of the given <cite>name</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">views</span><span class="o">.</span><span class="n">bonzai</span><span class="o">.</span><span class="n">lectroidByType</span><span class="p">)</span>
+<span class="go">&lt;class &#39;couchquery.View&#39;&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.View">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">View</tt><big>(</big><em>db</em>, <em>_id</em><big>)</big><a class="headerlink" href="#couchquery.View" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a title="(in Python v2.6)" class="reference external" href="http://docs.python.org/library/functions.html#callable"><tt class="xref docutils literal"><span class="pre">callable()</span></tt></a> class which provides access to a given view using the CouchDB HTTP View API.</p>
+<dl class="method">
+<dt>
+<tt class="descname">__call__([**kwargs]):</tt></dt>
+<dd><p>Queries a CouchDB view.</p>
+<p>If <cite>keys</cite> is in kwargs this uses the HTTP POST API, if <cite>keys</cite> is not in kwargs the HTTP GET API
+is used.</p>
+<p>Additional keyword arguments are passed as arguments to the noted HTTP API. All arguments
+except <cite>key_docid</cite>, <cite>startkey_docid</cite>, <cite>endkey_id</cite> and <cite>stale</cite> will be JSON serialized.</p>
+<p>Returns a <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> object for the returned result.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="couchquery.RowSet">
+<em class="property">
+class </em><tt class="descclassname">couchquery.</tt><tt class="descname">RowSet</tt><big>(</big><em>db</em>, <em>rows</em><span class="optional">[</span>, <em>offset</em><span class="optional">[</span>, <em>total_rows</em><span class="optional">[</span>, <em>parent</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>View result abstraction. Supports bulk edits, and a variety of other features documented in
+<a class="reference internal" href="#working-with-views"><em>Working with views</em></a>.</p>
+<p>Iterating over a RowSet will iterate over the values in the view result, values that are documents
+will be turned in to <a title="couchquery.Document" class="reference internal" href="#couchquery.Document"><tt class="xref docutils literal"><span class="pre">Document</span></tt></a> instances.</p>
+<dl class="method">
+<dt id="couchquery.RowSet.ids">
+<tt class="descname">ids</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.ids" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all ids in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.keys" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all the keys in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.values" title="Permalink to this definition">¶</a></dt>
+<dd>Returns a list of all the values in the view result.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.items">
+<tt class="descname">items</tt><big>(</big><span class="optional">[</span><em>key</em><span class="optional">[</span>, <em>value</em><span class="optional">]</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet.items" title="Permalink to this definition">¶</a></dt>
+<dd>Return a list of (key, value) tuples. By default <cite>key</cite> is <cite>&#8220;key&#8221;</cite> and <cite>value</cite> is <cite>&#8220;value&#8221;</cite> which
+means it will return a pair of <cite>(row[&#8216;key&#8217;], row[&#8216;value&#8217;],)</cite> for every <cite>row</cite> in the view result.</dd></dl>
+
+<dl class="attribute">
+<dt id="couchquery.RowSet.offset">
+<tt class="descname">offset</tt><a class="headerlink" href="#couchquery.RowSet.offset" title="Permalink to this definition">¶</a></dt>
+<dd>Offset for the rows in the view result relative to all keys in the view.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.get_offset">
+<tt class="descname">get_offset</tt><big>(</big><em>obj</em><span class="optional">[</span>, <em>key</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#couchquery.RowSet.get_offset" title="Permalink to this definition">¶</a></dt>
+<dd>Returns the offset for the given object. <cite>key</cite> defaults to <cite>&#8220;value&#8221;</cite> which means that obj is
+compared against the values in the rows. If the object exists multiple times the offset for the
+first occurence will be returned.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.save">
+<tt class="descname">save</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.save" title="Permalink to this definition">¶</a></dt>
+<dd>Save all the change made to the values in this RowSet. Sends this RowSet instance to
+<tt class="xref docutils literal"><span class="pre">Database.bulk()</span></tt>.</dd></dl>
+
+<dl class="method">
+<dt id="couchquery.RowSet.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#couchquery.RowSet.delete" title="Permalink to this definition">¶</a></dt>
+<dd>Remove all the values in this <a title="couchquery.RowSet" class="reference internal" href="#couchquery.RowSet"><tt class="xref docutils literal"><span class="pre">RowSet</span></tt></a> from the database. Sends this RowSet instance to
+<a title="couchquery.Database.delete" class="reference internal" href="#couchquery.Database.delete"><tt class="xref docutils literal"><span class="pre">Database.delete()</span></tt></a>.</dd></dl>
+
 </dd></dl>
 
 </div>

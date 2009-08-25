@@ -291,9 +291,76 @@ The contains operations are also customized. String values are checked against t
       
 .. class:: Design(db, _id)
       
-      Represents access to a given Design document. Part of the View access API document in 
-      :ref:`working-with-views`.
+   Represents access to a given Design document. Part of the View access API document in 
+   :ref:`working-with-views`.
    
-      Customized attribute access
+   This object has customized attribute access which returns a :class:`View` object for a view 
+   in the design document of the given `name`.
+      
+      >>> type(db.views.bonzai.lectroidByType)
+      <class 'couchquery.View'>
+      
+.. class:: View(db, _id)
+
+   A :func:`callable` class which provides access to a given view using the CouchDB HTTP View API.
    
+   .. method:: __call__([**kwargs]):
    
+      Queries a CouchDB view.
+      
+      If `keys` is in kwargs this uses the HTTP POST API, if `keys` is not in kwargs the HTTP GET API 
+      is used. 
+      
+      Additional keyword arguments are passed as arguments to the noted HTTP API. All arguments
+      except `key_docid`, `startkey_docid`, `endkey_id` and `stale` will be JSON serialized.
+      
+      Returns a :class:`RowSet` object for the returned result.
+
+.. class:: RowSet(db, rows[, offset[, total_rows[, parent]]])
+
+   View result abstraction. Supports bulk edits, and a variety of other features documented in
+   :ref:`working-with-views`.
+   
+   Iterating over a RowSet will iterate over the values in the view result, values that are documents 
+   will be turned in to :class:`Document` instances.
+   
+   .. method:: ids()
+   
+      Returns a list of all ids in the view result.
+      
+   .. method:: keys()
+   
+      Returns a list of all the keys in the view result.
+   
+   .. method:: values()
+   
+      Returns a list of all the values in the view result.
+   
+   .. method:: items([key[, value]])
+      
+      Return a list of (key, value) tuples. By default `key` is `"key"` and `value` is `"value"` which 
+      means it will return a pair of `(row['key'], row['value'],)` for every `row` in the view result.
+         
+   .. attribute:: offset
+   
+      Offset for the rows in the view result relative to all keys in the view.
+      
+   .. method:: get_offset(obj[, key])
+   
+      Returns the offset for the given object. `key` defaults to `"value"` which means that obj is 
+      compared against the values in the rows. If the object exists multiple times the offset for the
+      first occurence will be returned.
+   
+   .. method:: save()
+   
+      Save all the change made to the values in this RowSet. Sends this RowSet instance to 
+      :meth:`Database.bulk`.
+   
+   .. method:: delete()
+   
+      Remove all the values in this :class:`RowSet` from the database. Sends this RowSet instance to
+      :meth:`Database.delete`.
+      
+      
+      
+      
