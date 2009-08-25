@@ -167,7 +167,6 @@ The contains operations are also customized. String values are checked against t
 :mod:`couchquery` --- Simple CouchDB module.
 ======================================================================
 
-
 .. attribute:: debugging
 
    Defaults to :const:`True`. When set to :const:`True` accessing most dynamic attributes will be
