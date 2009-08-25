@@ -56,7 +56,10 @@ def test_bulk_add():
     db.create(lectroids)
     assert len(db.views.all()) is 17
 
-
+def test_keys_in_all():
+    a = db.views.all()
+    two = db.views.all(keys=[a[0]["_id"], a[1]["_id"]])
+    assert (two[0], two[1]) == (a[0], a[1])
     
 # def test_bulk_delete():
 #     alldocs = db.views.all()

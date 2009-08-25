@@ -225,13 +225,13 @@ class Views(object):
         else:
             raise TempViewException('Status: '+str(response.status)+'\nReason: '+response['reason']+'\nBody: '+response.body)
     
-    def all(self, include_docs=True, startkey=None, endkey=None):
-        qs = {'include_docs':include_docs}
-        if startkey is not None:
-            qs['startkey'] = startkey
-        if endkey is not None:
-            qs['endkey'] = endkey
-        response = self.db.http.get('_all_docs?' + '&'.join([k+'='+json.dumps(v) for k,v in qs.items()]))
+    def all(self, keys=None, include_docs=True, **kwargs):
+        kwargs['include_docs'] = include_docs
+        qs = '&'.join([k+'='+json.dumps(v) for k,v in kwargs.items()])
+        if keys:
+            response = self.db.http.post('_all_docs?' + qs, body=json.dumps({"keys":keys}))
+        else:
+            response = self.db.http.get('_all_docs?' + qs)
         if response.status == 200:
             result = json.loads(response.body)
             # Normalize alldocs to a standard view result for RowSet
@@ -239,8 +239,8 @@ class Views(object):
                 if 'doc' in row:
                     row['rev'] = row['value']['rev']
                     row['value'] = row['doc']
-            return RowSet(self.db, result['rows'], offset=result['offset'], 
-                          total_rows=result['total_rows'])
+            return RowSet(self.db, result['rows'], offset=result.get('offset', None), 
+                          total_rows=result.get('total_rows', None))
         else:
             raise Exception(response.body)
         
