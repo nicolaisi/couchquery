@@ -197,10 +197,9 @@ class Design(object):
 class TempViewException(Exception): pass
 
 class Views(object):
-    def __init__(self, db, http):
+    def __init__(self, db):
         self.db = db
         self.path = '_design/'
-        self.http = http
         
     def temp_view(self, map, reduce=None, **kwargs):
         view = {"map":map}
@@ -218,7 +217,7 @@ class Views(object):
             query_string = urllib.urlencode(kwargs)
             path = self.path+'_temp_view' + '?' + query_string
 
-        response = self.http.post(path, body=body)
+        response = self.db.http.post(path, body=body)
         if response.status == 200:
             result = json.loads(response.body)
             return RowSet(self.db, result['rows'], offset=result['offset'], 
@@ -232,7 +231,7 @@ class Views(object):
             qs['startkey'] = startkey
         if endkey is not None:
             qs['endkey'] = endkey
-        response = self.http.get('_all_docs?' + '&'.join([k+'='+json.dumps(v) for k,v in qs.items()]))
+        response = self.db.http.get('_all_docs?' + '&'.join([k+'='+json.dumps(v) for k,v in qs.items()]))
         if response.status == 200:
             result = json.loads(response.body)
             # Normalize alldocs to a standard view result for RowSet
@@ -247,9 +246,9 @@ class Views(object):
         
     def __getattr__(self, name):
         if debugging:
-            response = self.http.head(self.path+name+'/')
+            response = self.db.http.head(self.path+name+'/')
         if not debugging or response.status == 200:
-            setattr(self, name, Design(self, name, self.http))
+            setattr(self, name, Design(self, name, self.db.http))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name)
@@ -285,7 +284,7 @@ class Database(object):
             self.http = Httplib2Client(uri, cache)
         else:
             self.http = http
-        self.views = Views(self, self.http)
+        self.views = Views(self)
         
     def get(self, _id):
         """Get a single document by id from the database."""
