@@ -16,6 +16,26 @@ CouchDB is not a relational database. The purpose of couchquery is to provide a 
 .. toctree::
    :maxdepth: 3
 
+.. _installation:
+
+Installation
+------------
+
+`couchquery` requires `setuptools <http://http://pypi.python.org/pypi/setuptools>`_ and `httplib2 <http://http://code.google.com/p/httplib2/>`_. If you do not have them installed already you will want to::
+
+   $ curl -O http://peak.telecommunity.com/dist/ez_setup.py
+   $ python ez_setup.py
+   $ easy_install -U httplib2
+
+Now you can install couchquery::
+
+   $ easy_install couchquery
+
+The source code is publicly `available on github <http://github.com/mikeal/couchquery>`_. Tickets should be logged on the `github issues tracker <http://github.com/mikeal/couchquery/issues>`_. 
+
+The process for code contributions is for users to `fork the repository on github <http://help.github.com/forking/>`_, push modifications to their public fork, and then send `mikeal <http://github.com/mikeal>`_ a `pull request <http://github.com/guides/pull-requests>`_.
+
+
 .. _working-with-documents:
 
 Working with Documents
