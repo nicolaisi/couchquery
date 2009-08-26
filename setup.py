@@ -41,7 +41,7 @@ desc = """CouchDB Library"""
 summ = """CouchDB Library"""
 
 PACKAGE_NAME = "couchquery"
-PACKAGE_VERSION = "0.3"
+PACKAGE_VERSION = "0.8"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
@@ -49,6 +49,7 @@ setup(name=PACKAGE_NAME,
       summary=summ,
       author='Mikeal Rogers',
       author_email='mikeal.rogers@gmail.com',
+      url='http://mikeal.github.com/couchquery',
       license='MPL 1.1/GPL 2.0/LGPL 2.1',
       packages=find_packages(exclude=['test']),
       include_package_data=True,
