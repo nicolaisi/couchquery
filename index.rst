@@ -35,7 +35,6 @@ The source code is publicly `available on github <http://github.com/mikeal/couch
 
 The process for code contributions is for users to `fork the repository on github <http://help.github.com/forking/>`_, push modifications to their public fork, and then send `mikeal <http://github.com/mikeal>`_ a `pull request <http://github.com/guides/pull-requests>`_.
 
-
 .. _working-with-documents:
 
 Working with Documents
