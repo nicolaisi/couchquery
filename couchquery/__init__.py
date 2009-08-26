@@ -397,11 +397,13 @@ class Database(object):
             document['views'] = d
         
         try:
-            document["_rev"] = self.get(document["_id"])["_rev"]
+            current = self.get(document["_id"])
+            rev = current.pop('_rev')
+            if current != document:
+                document["_rev"] = rev
+                return self.save(document)
         except Exception, e: 
-            pass
-        
-        return self.save(document)
+            return self.save(document)
 
 Database = Database
 
