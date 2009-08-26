@@ -58,7 +58,7 @@ class Httplib2Client(HttpClient):
             self.http = http_override
     
     def request(self, path, method, headers, body):
-        return self.http.request(self.uri + path, method, headers=headers, body=body)
+        return self.http.request(self.uri + path, method, headers=headers, body=body, redirections=0)
     
     get = httplib2MethodWrapper("GET")
     put = httplib2MethodWrapper("PUT")
@@ -187,7 +187,6 @@ class View(object):
         else:
             response = self.db.http.post(path, body=json.dumps({'keys':keys}))
         
-        response = self.db.http.get(path)
         assert response.status == 200
         result = json.loads(response.body)
         return RowSet(self.db, result['rows'], offset=result.get('offset', None), 
