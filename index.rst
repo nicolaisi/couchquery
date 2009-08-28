@@ -27,6 +27,10 @@ Installation
    $ python ez_setup.py
    $ easy_install -U httplib2
 
+If you are running Python 2.5 or earlier you will also need simplejson.
+
+   $ easy_install simplejson
+
 Now you can install couchquery::
 
    $ easy_install couchquery
