@@ -164,6 +164,9 @@ class RowSet(object):
 #     def __len__(self):
 #         return len(self.result["rows"])
 
+
+class ViewException(Exception): pass
+
 class View(object):
     def __init__(self, db, path):
         self.db = db
@@ -187,11 +190,12 @@ class View(object):
         else:
             response = self.db.http.post(path, body=json.dumps({'keys':keys}))
         
-        assert response.status == 200
         result = json.loads(response.body)
-        return RowSet(self.db, result['rows'], offset=result.get('offset', None), 
-                       total_rows=result.get('total_rows'))
-        
+        if response.status == 200:
+            return RowSet(self.db, result['rows'], offset=result.get('offset', None), 
+                           total_rows=result.get('total_rows'))
+        else:
+            raise ViewException(result)
 
 class Design(object):
     def __init__(self, db, _id):
@@ -215,11 +219,11 @@ class Views(object):
         
     def temp_view(self, map, reduce=None, **kwargs):
         view = {"map":map}
-        if reduce:
+        if type(reduce) is str:
             view['reduce'] = reduce
         body = json.dumps(view)
         if len(kwargs) is 0:
-            uri = self.db.uri+'_temp_view'
+            path = self.db.uri+'_temp_view'
         else:
             for k, v in kwargs.items():
                 if type(v) is bool:
@@ -235,7 +239,7 @@ class Views(object):
             return RowSet(self.db, result['rows'], offset=result['offset'], 
                            total_rows=result['total_rows'])
         else:
-            raise TempViewException('Status: '+str(response.status)+'\nReason: '+response['reason']+'\nBody: '+response.body)
+            raise TempViewException('Status: '+str(response.status)+'\nBody: '+response.body)
     
     def all(self, keys=None, include_docs=True, **kwargs):
         kwargs['include_docs'] = include_docs
@@ -289,7 +293,10 @@ def deletedb(arg):
 
 class Database(object):
     def __init__(self, uri, http=None, http_engine=None, cache=None):
+        if not uri.endswith('/'):
+            uri += '/'
         self.uri = uri
+        
         if type(http) is httplib2.Http:
             self.http = Httplib2Client(uri, http_override=http)
         elif http_engine is None:
