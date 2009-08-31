@@ -177,8 +177,11 @@ class View(object):
         #         kwargs[k] = str(v).lower()
         #     if k in ['key', 'startkey', 'endkey']:
         #         kwargs[k] = json.dumps(v)
+        qs = {}
+        for k, v in kwargs.items():
+            if 'docid' not in k and k != 'stale': qs[k] = json.dumps(v)
+            else: qs[k] = v
         
-        qs = dict([(k,json.dumps(v),) for k,v in kwargs.items() if 'docid' not in k and k != 'stale'])
         query_string = urllib.urlencode(qs)
         if len(query_string) is not 0:
             path = self.path + '?' + query_string
