@@ -74,6 +74,10 @@ class RowSet(object):
         self.__changes = []
         self.__parent = parent
         self.__offset = offset
+        self.total_rows = total_rows
+        
+    def raw_rows(self):
+        return self.__rows
     
     def keys(self):
         return [x['key'] for x in self.__rows]
@@ -126,6 +130,8 @@ class RowSet(object):
             return obj in (x['value'] for x in self.__rows)
     
     def __getitem__(self, i):
+        if i > len(self.__rows):
+            raise IndexError("out of range")
         if type(i) is int:
             if ( type(self.__rows[i]) is dict ) and (
                  type(self.__rows[i]) is not Document ) and ( 
@@ -139,6 +145,12 @@ class RowSet(object):
                         
         else:
             return RowSet(self.__db, [r for r in self.__rows if r['key'] == i], parent=self)
+    
+    def get(self, i, default=None):
+        try:
+            return self[i]
+        except IndexError:
+            return default
         
     def __setattr__(self, name, obj):
         if name.startswith("__") or "_RowSet__db":
