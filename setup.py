@@ -41,7 +41,7 @@ desc = """CouchDB Library"""
 summ = """CouchDB Library"""
 
 PACKAGE_NAME = "couchquery"
-PACKAGE_VERSION = "0.8"
+PACKAGE_VERSION = "0.8.1"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
