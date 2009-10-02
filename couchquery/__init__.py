@@ -125,14 +125,14 @@ class RowSet(object):
     
     def __contains__(self, obj):
         if type(obj) is str:
-            return obj in (x['id'] for x in self.__rows) 
+            return obj in (x['id'] for x in self.__rows)
         else:
             return obj in (x['value'] for x in self.__rows)
     
     def __getitem__(self, i):
-        if i > len(self.__rows):
-            raise IndexError("out of range")
         if type(i) is int:
+            if i > len(self.__rows):
+                raise IndexError("out of range")
             if ( type(self.__rows[i]) is dict ) and (
                  type(self.__rows[i]) is not Document ) and ( 
                  type(self.__rows[i]['value']) is dict ) and ( 
