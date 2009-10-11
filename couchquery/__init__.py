@@ -153,9 +153,9 @@ class RowSet(object):
             return default
         
     def __setattr__(self, name, obj):
-        if name.startswith("__") or "_RowSet__db":
+        if name.startswith("__") or name.startswith("_"+type(self).__name__.split('.')[-1]+"__"):
             return object.__setattr__(self, name, obj)
-        for x in self.__rows:
+        for x in self:
             x[name] = obj
             # batch request
     
