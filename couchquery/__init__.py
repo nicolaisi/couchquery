@@ -74,7 +74,7 @@ class RowSet(object):
         self.__changes = []
         self.__parent = parent
         self.__offset = offset
-        self.total_rows = total_rows
+        object.__setattr__(self, 'total_rows', total_rows)
         
     def raw_rows(self):
         return self.__rows
