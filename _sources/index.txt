@@ -21,7 +21,7 @@ CouchDB is not a relational database. The purpose of couchquery is to provide a 
 Installation
 ------------
 
-`couchquery` requires `setuptools <http://http://pypi.python.org/pypi/setuptools>`_ and `httplib2 <http://http://code.google.com/p/httplib2/>`_. If you do not have them installed already you will want to::
+`couchquery` requires `setuptools <http://pypi.python.org/pypi/setuptools>`_ and `httplib2 <http://code.google.com/p/httplib2/>`_. If you do not have them installed already you will want to::
 
    $ curl -O http://peak.telecommunity.com/dist/ez_setup.py
    $ python ez_setup.py
