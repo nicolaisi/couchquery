@@ -16,7 +16,7 @@ except:
 jheaders = {"content-type":"application/json",
             "accept"      :"application/json"}
 
-design_template = {"_id":"_design/", "language":"javascript"}
+design_template = {"_id":"_design/"}
 
 class HttpResponse(object):
     pass
@@ -232,8 +232,8 @@ class Views(object):
         self.db = db
         self.path = '_design/'
         
-    def temp_view(self, map, reduce=None, **kwargs):
-        view = {"map":map}
+    def temp_view(self, map, reduce=None, language='javascript', **kwargs):
+        view = {"map":map, "language":language}
         if type(reduce) is str:
             view['reduce'] = reduce
         body = json.dumps(view)
@@ -405,16 +405,20 @@ class Database(object):
         else:
             raise CouchDBException("Bulk update failed "+response.body)
 
-    def sync_design_doc(self, name, directory):
+    def sync_design_doc(self, name, directory, language='javascript'):
         document = copy.copy(design_template)
+        document['language'] = language
         document['_id'] += name
         d = {}
+        
+        ext = {'javascript':'js','python':'py'}[language]
+        
         for view in os.listdir(directory):
             v = {}
-            if os.path.isfile(os.path.join(directory, view, 'map.js')):
-                v['map'] = open(os.path.join(directory, view, 'map.js'), 'r').read()
-            if os.path.isfile(os.path.join(directory, view, 'reduce.js')):
-                v['reduce'] = open(os.path.join(directory, view, 'reduce.js'), 'r').read()
+            if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
+                v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
+            if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
+                v['reduce'] = open(os.path.join(directory, view, 'reduce.'+ext), 'r').read()
             d[view] = v
             document['views'] = d
         
