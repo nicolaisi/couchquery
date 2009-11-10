@@ -419,7 +419,11 @@ class Database(object):
                 v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
             if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
                 v['reduce'] = open(os.path.join(directory, view, 'reduce.'+ext), 'r').read()
-            d[view] = v
+            if view.endswith(".py"):
+                # Need better load logic to handle other view types
+                v['map'] = open(os.path.join(directory, view), 'r').read()
+            
+            d[view.split('.')[0]] = v
             document['views'] = d
         
         try:
