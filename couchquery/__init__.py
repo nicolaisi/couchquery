@@ -406,25 +406,29 @@ class Database(object):
             raise CouchDBException("Bulk update failed "+response.body)
 
     def sync_design_doc(self, name, directory, language='javascript'):
-        document = copy.copy(design_template)
-        document['language'] = language
-        document['_id'] += name
-        d = {}
+        if language == 'python':
+            import couchdbviews
+            document = couchdbviews.generate_design_document(directory, name)
+        else:
+            document = copy.copy(design_template)
+            document['language'] = language
+            document['_id'] += name
+            d = {}
         
-        ext = {'javascript':'js','python':'py'}[language]
+            ext = {'javascript':'js','python':'py'}[language]
         
-        for view in os.listdir(directory):
-            v = {}
-            if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
-                v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
-            if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
-                v['reduce'] = open(os.path.join(directory, view, 'reduce.'+ext), 'r').read()
-            if view.endswith(".py"):
-                # Need better load logic to handle other view types
-                v['map'] = open(os.path.join(directory, view), 'r').read()
+            for view in os.listdir(directory):
+                v = {}
+                if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
+                    v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
+                if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
+                    v['reduce'] = open(os.path.join(directory, view, 'reduce.'+ext), 'r').read()
+                if view.endswith(".py"):
+                    # Need better load logic to handle other view types
+                    v['map'] = open(os.path.join(directory, view), 'r').read()
             
-            d[view.split('.')[0]] = v
-            document['views'] = d
+                d[view.split('.')[0]] = v
+                document['views'] = d
         
         try:
             current = self.get(document["_id"])
