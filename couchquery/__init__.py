@@ -18,6 +18,23 @@ jheaders = {"content-type":"application/json",
 
 design_template = {"_id":"_design/"}
 
+content_type_table = {'js': 'application/x-javascript', 'html': 'text/html; charset=utf-8',
+                      'fallback':'text/plain; charset=utf-8', 'ogg': 'application/ogg', 
+                      'xhtml':'text/html; charset=utf-8', 'rm':'audio/vnd.rn-realaudio', 
+                      'swf':'application/x-shockwave-flash', 
+                      'mp3': 'audio/mpeg', 'wma':'audio/x-ms-wma', 
+                      'ra':'audio/vnd.rn-realaudio', 'wav':'audio/x-wav', 
+                      'gif':'image/gif', 'jpeg':'image/jpeg',
+                      'jpg':'image/jpeg', 'png':'image/png', 
+                      'tiff':'image/tiff', 'css':'text/css; charset=utf-8',
+                      'mpeg':'video/mpeg', 'mp4':'video/mp4', 
+                      'qt':'video/quicktime', 'mov':'video/quicktime',
+                      'wmv':'video/x-ms-wmv', 'atom':'application/atom+xml; charset=utf-8',
+                      'xslt':'application/xslt+xml', 'svg':'image/svg+xml', 
+                      'mathml':'application/mathml+xml', 
+                      'rss':'application/rss+xml; charset=utf-8',
+                      'ics':'text/calendar; charset=utf-8 '}
+
 class HttpResponse(object):
     pass
 
@@ -32,8 +49,10 @@ class HttpClient(object):
     pass
 
 def httplib2MethodWrapper(method):
-    def m(self, path=None, headers={'content-type':'application/json'}, body=None):
-        resp, content = self.request(path, method, headers=headers, body=body)
+    def m(self, path, **kwargs):
+        if 'headers' not in kwargs:
+            kwargs['headers'] = {'content-type':'application/json'}
+        resp, content = self.request(path, method, **kwargs)
         return Httplib2Response(resp, content)
     return m
     
@@ -57,7 +76,7 @@ class Httplib2Client(HttpClient):
         else:
             self.http = http_override
     
-    def request(self, path, method, headers, body):
+    def request(self, path, method, headers, body=None):
         return self.http.request(self.uri + path, method, headers=headers, body=body, redirections=0)
     
     get = httplib2MethodWrapper("GET")
@@ -404,11 +423,39 @@ class Database(object):
             return json.loads(response.body)
         else:
             raise CouchDBException("Bulk update failed "+response.body)
+            
+    def add_attachments(self, doc, f, name=None, content_type=None, rev=None):
+        t = type(doc)
+        if t is str or t is unicode:
+            _id = doc
+        else:
+            _id = doc["_id"]
+        t = type(f)
+        if t is str or t is unicode:
+            assert os.path.isfile(f)
+            body = open(f, 'r').read()
+            if content_type is None:
+                content_type = content_type_table[f.split('.')[-1]]
+            name = os.path.split(f)[-1]
+        else:
+            body = f
+            if content_type is None:
+                raise Exception("Cannot send a string body without a content-type.")
+            if name is None:
+                raise Exception("Cannot send a string body with a name.")
+        if rev:
+            path = _id+'/'+name+'?rev='+rev
+        else:
+            path = _id+'/'+name
+        
+        response = self.http.put(path, body=body, headers={'content-type':content_type})
+        assert response.status == 201
+        return json.loads(response.body)
 
     def sync_design_doc(self, name, directory, language='javascript'):
         if language == 'python':
             import couchdbviews
-            document = couchdbviews.generate_design_document(directory, name)
+            document = couchdbviews.generate_design_document(directory, name)  
         else:
             document = copy.copy(design_template)
             document['language'] = language
@@ -430,14 +477,24 @@ class Database(object):
                 d[view.split('.')[0]] = v
                 document['views'] = d
         
+        
+        
         try:
             current = self.get(document["_id"])
             rev = current.pop('_rev')
             if current != document:
                 document["_rev"] = rev
-                return self.save(document)
+                info = self.save(document)
+            else:
+                info = {'id':current['_id'],'rev':rev}
         except Exception, e: 
-            return self.save(document)
+            info = self.save(document)
+        
+        rev = info['rev']
+        if os.path.isdir(os.path.join(directory, 'attachments')):
+             for f in [os.path.join(directory, 'attachments', f) for f in os.listdir(os.path.join(directory, 'attachments'))]:
+                 rev = self.add_attachments('_design/'+name, f, rev=rev)['rev']
+        return info
 
 Database = Database
 
