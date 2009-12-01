@@ -38,6 +38,7 @@ content_type_table = {'js': 'application/x-javascript', 'html': 'text/html; char
 class HttpResponse(object):
     pass
 
+
 class Httplib2Response(HttpResponse):
     def __init__(self, response, content):
         self.body = content
@@ -45,8 +46,10 @@ class Httplib2Response(HttpResponse):
         self.status = response.status
         self.headers = response
 
+
 class HttpClient(object):
     pass
+
 
 def httplib2MethodWrapper(method):
     def m(self, path, **kwargs):
@@ -55,7 +58,8 @@ def httplib2MethodWrapper(method):
         resp, content = self.request(path, method, **kwargs)
         return Httplib2Response(resp, content)
     return m
-    
+
+
 class Httplib2Client(HttpClient):
     def __init__(self, uri, cache=None, http_override=None):
         self.uri = uri
@@ -100,7 +104,9 @@ class RowSet(object):
     
     def keys(self):
         return [x['key'] for x in self.__rows]
+
     def values(self):
+
         return [x for x in self]
     def ids(self):
         return [x['id'] for x in self.__rows]
@@ -202,6 +208,7 @@ class View(object):
     def __init__(self, db, path):
         self.db = db
         self.path = path
+
     def __call__(self, keys=None, **kwargs):
         # for k, v in kwargs.items():
         #     if type(v) is bool:
@@ -231,10 +238,12 @@ class View(object):
         else:
             raise ViewException(result)
 
+
 class Design(object):
     def __init__(self, db, _id):
         self.db = db
         self._id = _id
+
     def __getattr__(self, name):
         if debugging:    
             response = self.db.http.head(self._id+'/_view/'+name+'/')
@@ -243,6 +252,7 @@ class Design(object):
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name+". "+response.body)
+
 
 class TempViewException(Exception): pass
 
@@ -303,11 +313,13 @@ class Views(object):
         else:
             raise AttributeError("No view named "+name)
 
+
 class CouchDBException(Exception): pass
 
 class CouchDBDocumentConflict(Exception): pass
 
 class CouchDBDocumentDoesNotExist(Exception): pass
+
 
 def createdb(arg):
     if type(arg) is Database:
@@ -324,6 +336,7 @@ def deletedb(arg):
     response = db.http.delete('')
     assert response.status == 200
     return json.loads(response.body)
+
 
 class Database(object):
     def __init__(self, uri, http=None, http_engine=None, cache=None):
@@ -501,6 +514,7 @@ Database = Database
 def set_global_db(_gdb):
     global global_db
     global_db = _gdb
+
 
 class Document(dict):
     def __init__(self, *args, **kwargs):
