@@ -16,24 +16,24 @@ except:
 jheaders = {"content-type":"application/json",
             "accept"      :"application/json"}
 
-design_template = {"_id":"_design/"}
+design_template = {"_id": "_design/"}
 
 content_type_table = {'js': 'application/x-javascript', 'html': 'text/html; charset=utf-8',
-                      'fallback':'text/plain; charset=utf-8', 'ogg': 'application/ogg', 
-                      'xhtml':'text/html; charset=utf-8', 'rm':'audio/vnd.rn-realaudio', 
-                      'swf':'application/x-shockwave-flash', 
-                      'mp3': 'audio/mpeg', 'wma':'audio/x-ms-wma', 
-                      'ra':'audio/vnd.rn-realaudio', 'wav':'audio/x-wav', 
-                      'gif':'image/gif', 'jpeg':'image/jpeg',
-                      'jpg':'image/jpeg', 'png':'image/png', 
-                      'tiff':'image/tiff', 'css':'text/css; charset=utf-8',
-                      'mpeg':'video/mpeg', 'mp4':'video/mp4', 
-                      'qt':'video/quicktime', 'mov':'video/quicktime',
-                      'wmv':'video/x-ms-wmv', 'atom':'application/atom+xml; charset=utf-8',
-                      'xslt':'application/xslt+xml', 'svg':'image/svg+xml', 
-                      'mathml':'application/mathml+xml', 
-                      'rss':'application/rss+xml; charset=utf-8',
-                      'ics':'text/calendar; charset=utf-8 '}
+                      'fallback': 'text/plain; charset=utf-8', 'ogg': 'application/ogg',
+                      'xhtml': 'text/html; charset=utf-8', 'rm': 'audio/vnd.rn-realaudio',
+                      'swf': 'application/x-shockwave-flash',
+                      'mp3': 'audio/mpeg', 'wma': 'audio/x-ms-wma',
+                      'ra': 'audio/vnd.rn-realaudio', 'wav': 'audio/x-wav',
+                      'gif': 'image/gif', 'jpeg': 'image/jpeg',
+                      'jpg': 'image/jpeg', 'png': 'image/png',
+                      'tiff': 'image/tiff', 'css': 'text/css; charset=utf-8',
+                      'mpeg': 'video/mpeg', 'mp4': 'video/mp4',
+                      'qt': 'video/quicktime', 'mov': 'video/quicktime',
+                      'wmv': 'video/x-ms-wmv', 'atom': 'application/atom+xml; charset=utf-8',
+                      'xslt': 'application/xslt+xml', 'svg': 'image/svg+xml',
+                      'mathml': 'application/mathml+xml',
+                      'rss': 'application/rss+xml; charset=utf-8',
+                      'ics': 'text/calendar; charset=utf-8'}
 
 class HttpResponse(object):
     pass
@@ -222,7 +222,7 @@ class View(object):
         if not keys:
             response = self.db.http.get(path)
         else:
-            response = self.db.http.post(path, body=json.dumps({'keys':keys}))
+            response = self.db.http.post(path, body=json.dumps({'keys': keys}))
         
         result = json.loads(response.body)
         if response.status == 200:
@@ -279,7 +279,7 @@ class Views(object):
         kwargs['include_docs'] = include_docs
         qs = '&'.join([k+'='+json.dumps(v) for k,v in kwargs.items()])
         if keys:
-            response = self.db.http.post('_all_docs?' + qs, body=json.dumps({"keys":keys}))
+            response = self.db.http.post('_all_docs?' + qs, body=json.dumps({"keys": keys}))
         else:
             response = self.db.http.get('_all_docs?' + qs)
         if response.status == 200:
@@ -417,7 +417,7 @@ class Database(object):
             return self.create(doc)
             
     def bulk(self, docs, all_or_nothing=False):
-        body = {'docs':list(docs), 'all_or_nothing':all_or_nothing}
+        body = {'docs': list(docs), 'all_or_nothing': all_or_nothing}
         response = self.http.post('_bulk_docs', body=json.dumps(body))
         if response.status == 201:
             return json.loads(response.body)
@@ -446,9 +446,9 @@ class Database(object):
         if rev:
             path = _id+'/'+name+'?rev='+rev
         else:
+        response = self.http.put(path, body=body, headers={'content-type': content_type})
             path = _id+'/'+name
         
-        response = self.http.put(path, body=body, headers={'content-type':content_type})
         assert response.status == 201
         return json.loads(response.body)
 
@@ -461,8 +461,8 @@ class Database(object):
             document['language'] = language
             document['_id'] += name
             d = {}
+            ext = {'javascript': 'js', 'python': 'py'}[language]
         
-            ext = {'javascript':'js','python':'py'}[language]
         
             for view in os.listdir(directory):
                 v = {}
@@ -486,7 +486,7 @@ class Database(object):
                 document["_rev"] = rev
                 info = self.save(document)
             else:
-                info = {'id':current['_id'],'rev':rev}
+                info = {'id': current['_id'], 'rev': rev}
         except Exception, e: 
             info = self.save(document)
         
