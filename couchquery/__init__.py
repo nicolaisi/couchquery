@@ -352,15 +352,15 @@ class Database(object):
             self.http = http
         self.views = Views(self)
 
-    def get(self, _id):
+    def get(self, id_):
         """Get a single document by id from the database."""
-        response = self.http.get(_id)
+        response = self.http.get(id_)
         if response.status == 200:
             obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
             return Document(obj, db=self)
         else:
+            raise CouchDBDocumentDoesNotExist("No document at id "+id_)
 
-            raise CouchDBDocumentDoesNotExist("No document at id "+_id)
     def create(self, doc, all_or_nothing=False):
         """Create a document. Accepts any object that can be converted in to a dict.
         If multiple documents are passed they are handed off to the bulk document handler.
@@ -455,11 +455,11 @@ class Database(object):
             if name is None:
                 raise Exception("Cannot send a string body with a name.")
         if rev:
-            path = _id+'/'+name+'?rev='+rev
+            path = id_+'/'+name+'?rev='+rev
         else:
+            path = id_+'/'+name
 
         response = self.http.put(path, body=body, headers={'content-type': content_type})
-            path = _id+'/'+name
         assert response.status == 201
         return json.loads(response.body)
 
