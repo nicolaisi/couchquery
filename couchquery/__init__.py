@@ -139,7 +139,7 @@ class RowSet(object):
         return self.offset + [x[key] for x in self.__rows].index(obj)
 
     def __iter__(self):
-        for i in range(len(self.__rows)):
+        for i in xrange(len(self.__rows)):
             x = self.__rows[i]
             if type(x) is dict and type(x) is not Document and type(x['value']) is dict and x['value'].has_key('_id'):
                 doc = Document(x['value'], db=self.__db)
@@ -216,7 +216,7 @@ class View(object):
         #     if k in ['key', 'startkey', 'endkey']:
         #         kwargs[k] = json.dumps(v)
         qs = {}
-        for k, v in kwargs.items():
+        for k, v in kwargs.iteritems():
             if 'docid' not in k and k != 'stale': qs[k] = json.dumps(v)
             else: qs[k] = v
 
@@ -269,7 +269,7 @@ class Views(object):
         if len(kwargs) is 0:
             path = self.db.uri+'_temp_view'
         else:
-            for k, v in kwargs.items():
+            for k, v in kwargs.iteritems():
                 if type(v) is bool:
                     kwargs[k] = str(v).lower()
                 if k in ['key', 'startkey', 'endkey']:
@@ -287,7 +287,7 @@ class Views(object):
 
     def all(self, keys=None, include_docs=True, **kwargs):
         kwargs['include_docs'] = include_docs
-        qs = '&'.join([k+'='+json.dumps(v) for k,v in kwargs.items()])
+        qs = '&'.join( k+'='+json.dumps(v) for k,v in kwargs.iteritems() )
         if keys:
             response = self.db.http.post('_all_docs?' + qs, body=json.dumps({"keys": keys}))
         else:
@@ -356,7 +356,7 @@ class Database(object):
         """Get a single document by id from the database."""
         response = self.http.get(_id)
         if response.status == 200:
-            obj = dict([(str(k),v,) for k,v in json.loads(response.body).items()])
+            obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
             return Document(obj, db=self)
         else:
 
