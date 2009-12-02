@@ -503,8 +503,8 @@ class Database(object):
 
         rev = info['rev']
         if os.path.isdir(os.path.join(directory, 'attachments')):
-             for f in [os.path.join(directory, 'attachments', f) for f in os.listdir(os.path.join(directory, 'attachments'))]:
-                 rev = self.add_attachments('_design/'+name, f, rev=rev)['rev']
+            for f in [os.path.join(directory, 'attachments', f) for f in os.listdir(os.path.join(directory, 'attachments'))]:
+                rev = self.add_attachments('_design/'+name, f, rev=rev)['rev']
         return info
 
 Database = Database
