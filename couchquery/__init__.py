@@ -149,7 +149,7 @@ class RowSet(object):
                 yield x['value']
 
     def __contains__(self, obj):
-        if type(obj) is str:
+        if isinstance(obj, basestring):
             return obj in (x['id'] for x in self.__rows)
         else:
             return obj in (x['value'] for x in self.__rows)
@@ -438,13 +438,11 @@ class Database(object):
             raise CouchDBException("Bulk update failed "+response.body)
 
     def add_attachments(self, doc, f, name=None, content_type=None, rev=None):
-        t = type(doc)
-        if t is str or t is unicode:
-            _id = doc
+        if isinstance(doc, basestring):
+            id_ = doc
         else:
-            _id = doc["_id"]
-        t = type(f)
-        if t is str or t is unicode:
+            id_ = doc["_id"]
+        if isinstance(f, basestring):
             assert os.path.isfile(f)
             body = open(f, 'r').read()
             if content_type is None:
