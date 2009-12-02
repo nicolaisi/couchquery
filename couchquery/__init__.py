@@ -266,7 +266,7 @@ class Views(object):
         if type(reduce) is str:
             view['reduce'] = reduce
         body = json.dumps(view)
-        if len(kwargs) is 0:
+        if not kwargs:
             path = self.db.uri+'_temp_view'
         else:
             for k, v in kwargs.iteritems():
