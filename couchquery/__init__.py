@@ -409,8 +409,8 @@ class Database(object):
         else:
             for d in doc:
                 d['_deleted'] = True
+            self.bulk([doc], all_or_nothing=all_or_nothing)
 
-            self.bulk(d, all_or_nothing=all_or_nothing)
         if response.status == 200:
             return json.loads(response.body)
         else:
