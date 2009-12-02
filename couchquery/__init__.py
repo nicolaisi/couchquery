@@ -261,10 +261,10 @@ class Views(object):
         self.db = db
         self.path = '_design/'
 
-    def temp_view(self, map, reduce=None, language='javascript', **kwargs):
-        view = {"map":map, "language":language}
-        if type(reduce) is str:
-            view['reduce'] = reduce
+    def temp_view(self, map_, reduce_=None, language='javascript', **kwargs):
+        view = {"map": map_, "language": language}
+        if isinstance(reduce_, basestring):
+            view['reduce'] = reduce_
         body = json.dumps(view)
         if not kwargs:
             path = self.db.uri+'_temp_view'
