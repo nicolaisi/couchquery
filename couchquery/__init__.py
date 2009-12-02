@@ -122,8 +122,8 @@ class RowSet(object):
         else:
             keys = [x[key] for x in self.__rows]
 
+        return zip(keys, values)
 
-        return map(lambda x, y: (x,y,), keys, values)
     @property
     def offset(self):
         if self.__offset is None:
