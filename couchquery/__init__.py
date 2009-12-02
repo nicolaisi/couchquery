@@ -106,8 +106,8 @@ class RowSet(object):
         return [x['key'] for x in self.__rows]
 
     def values(self):
+        return list(self)
 
-        return [x for x in self]
     def ids(self):
         return [x['id'] for x in self.__rows]
 
