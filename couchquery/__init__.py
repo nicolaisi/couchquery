@@ -507,7 +507,6 @@ class Database(object):
                 rev = self.add_attachments('_design/'+name, f, rev=rev)['rev']
         return info
 
-Database = Database
 
 def set_global_db(_gdb):
     global global_db
