@@ -324,7 +324,8 @@ class CouchDBDocumentDoesNotExist(Exception): pass
 def createdb(arg):
     if type(arg) is Database:
         db = arg
-    else: db = Database(arg)
+    else:
+        db = Database(arg)
     response = db.http.put('')
     assert response.status == 201
     return json.loads(response.body)
@@ -332,7 +333,8 @@ def createdb(arg):
 def deletedb(arg):
     if type(arg) is Database:
         db = arg
-    else: db = Database(arg)
+    else:
+        db = Database(arg)
     response = db.http.delete('')
     assert response.status == 200
     return json.loads(response.body)
