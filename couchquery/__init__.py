@@ -13,8 +13,8 @@ try:
 except:
     import json
 
-jheaders = {"content-type":"application/json",
-            "accept"      :"application/json"}
+JSON_HEADERS = {"content-type": "application/json",
+                "accept"      : "application/json"}
 
 design_template = {"_id": "_design/"}
 
@@ -54,7 +54,7 @@ class HttpClient(object):
 def httplib2MethodWrapper(method):
     def m(self, path, **kwargs):
         if 'headers' not in kwargs:
-            kwargs['headers'] = {'content-type':'application/json'}
+            kwargs['headers'] = JSON_HEADERS
         resp, content = self.request(path, method, **kwargs)
         return Httplib2Response(resp, content)
     return m
