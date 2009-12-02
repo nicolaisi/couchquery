@@ -141,7 +141,7 @@ class RowSet(object):
     def __iter__(self):
         for i in xrange(len(self.__rows)):
             x = self.__rows[i]
-            if type(x) is dict and type(x) is not Document and type(x['value']) is dict and x['value'].has_key('_id'):
+            if type(x) is dict and type(x['value']) is dict and x['value'].has_key('_id'):
                 doc = Document(x['value'], db=self.__db)
                 self.__rows[i]['value'] = doc
                 yield doc
