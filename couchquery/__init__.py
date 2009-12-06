@@ -354,14 +354,31 @@ class Database(object):
             self.http = http
         self.views = Views(self)
 
-    def get(self, id_):
-        """Get a single document by id from the database."""
-        response = self.http.get(id_)
+    def get(self, id_, rev=None):
+        """Get a single document by id and (optionally) revision from the database."""
+        if rev is None:
+            response = self.http.get(id_)
+        else:
+            response = self.http.get(id_+"?rev="+rev)
         if response.status == 200:
             obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
             return Document(obj, db=self)
         else:
             raise CouchDBDocumentDoesNotExist("No document at id "+id_)
+
+    def get_revs(self, id_, fetch=False):
+        """Get all revisions of a single document from the database.
+        Returns a generator for the revision names or the actual documents,
+        depending on whether fetch=True is given (defaults to False).
+        """
+        response = self.http.get(id_ + "?revs_info=true")
+        for rev in json.loads(response.body)["_revs_info"]:
+            if rev["status"] != "available":
+                continue
+            if fetch:
+                yield self.get(id_, rev=rev["rev"])
+            else:
+                yield rev["rev"]
 
     def create(self, doc, all_or_nothing=False):
         """Create a document. Accepts any object that can be converted in to a dict.

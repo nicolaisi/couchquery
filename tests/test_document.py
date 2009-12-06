@@ -72,6 +72,13 @@ def test_items():
     assert a.items()[0][0] == 'black-lectroid'
     assert type(a.items()[0][1]) is Document
     assert type(a.items(key='value')[0][0]) is Document
+
+def test_revisions():
+    doc = db.views.banzai.byType()[0]
+    doc.test_revisions = 'done'
+    db.update(doc)
+    assert len(list(db.get_revs(doc._id))) > 1
+    assert 'name' in db.get_revs(doc._id, fetch=True).next()
     
 # def test_bulk_delete():
 #     alldocs = db.views.all()
