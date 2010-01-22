@@ -9,9 +9,15 @@ import httplib2
 debugging = True
 
 try:
-    import simplejson as json
+    import jsonlib2 as json
 except:
-    import json
+    try:
+        import yajl as json
+    except:
+        try:
+            import simplejson as json
+        except:
+            import json
 
 JSON_HEADERS = {"content-type": "application/json",
                 "accept"      : "application/json"}
