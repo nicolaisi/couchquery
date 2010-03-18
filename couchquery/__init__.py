@@ -386,6 +386,12 @@ class Database(object):
             else:
                 yield rev["rev"]
 
+    def exists(self):
+        response = self.http.get('')
+        if response.status == 404:
+            return False
+        return True
+
     def create(self, doc, all_or_nothing=False):
         """Create a document. Accepts any object that can be converted in to a dict.
         If multiple documents are passed they are handed off to the bulk document handler.

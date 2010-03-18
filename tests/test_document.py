@@ -22,6 +22,14 @@ lectroids = [
     {'type':'red-lectroid',   'name':"John Small Berries"},
 ]
 
+def test_db_exists_false():
+    dbf = Database('http://localhost:5984/this_db_should_likely_not_exist')
+    assert db.exists() == False
+
+def test_db_exists_true():
+    dbf = Database('http://localhost:5984/couchquery_unittest')
+    assert db.exists() == True
+
 def test_simple_add():
     for doc in lectroids:
         assert db.create(doc)['ok'] == True

@@ -1,0 +1,4 @@
+*.pyc
+build/
+couchquery.egg-info/
+dist/
