@@ -386,7 +386,7 @@ class Database(object):
             else:
                 yield rev["rev"]
 
-    def list(self):
+    def all_ids(self):
         """List all documents ids in the database."""
         response = self.http.get("_all_docs")
         obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
