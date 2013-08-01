@@ -46,8 +46,8 @@ PACKAGE_VERSION = "0.9"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
-      description=desc,
-      summary=summ,
+      long_description=desc,
+      description=summ,
       author='Mikeal Rogers',
       author_email='mikeal.rogers@gmail.com',
       url='http://mikeal.github.com/couchquery',
