@@ -75,8 +75,9 @@ class Httplib2Client(HttpClient):
 
         if http_override is None:
             if '@' in self.uri:
-                user, password = self.uri.replace('http://','').split('@')[0].split(':')
-                self.uri = 'http://'+self.uri.split('@')[1]
+                protocol = 'https://' if 'https' in self.uri else 'http://'
+                user, password = self.uri.replace(protocol,'').split('@')[0].split(':')
+                self.uri = protocol+self.uri.split('@')[1]
                 if cache is None:
                     cache = '.cache'
                 self.http = httplib2.Http(cache)
