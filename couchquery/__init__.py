@@ -363,6 +363,7 @@ class Database(object):
 
     def get(self, id_, rev=None):
         """Get a single document by id and (optionally) revision from the database."""
+        id_ = urllib.quote(id_)
         if rev is None:
             response = self.http.get(id_)
         else:
