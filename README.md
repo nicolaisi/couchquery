@@ -12,4 +12,10 @@ some bug from my end. But mikeal is not maintaining it anymore.
 
 There are many forks out there and I gather all the latest code here.
 
+Getting Started
+===============
+You will need [CouchDB](http://guide.couchdb.org/draft/source.html)
+
+
+
 
