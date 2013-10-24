@@ -26,7 +26,13 @@ Shutdown using
     
     sudo couchdb -d
 
+Installation
+============
+pip install couchquery
 
+Tests
+=====
+py.test tests
 
 
 
