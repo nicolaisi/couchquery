@@ -4,3 +4,4 @@
 build/
 couchquery.egg-info/
 dist/
+.cache/
