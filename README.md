@@ -26,7 +26,13 @@ Shutdown using
     
     sudo couchdb -d
 
+Installation
+============
+git clone https://github.com/nicolaisi/couchquery.git
 
+Tests
+=====
+py.test tests
 
 
 
