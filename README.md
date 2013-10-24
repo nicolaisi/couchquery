@@ -28,7 +28,7 @@ Shutdown using
 
 Installation
 ============
-git clone https://github.com/nicolaisi/couchquery.git
+pip install couchquery
 
 Tests
 =====
