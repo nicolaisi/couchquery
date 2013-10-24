@@ -518,6 +518,8 @@ class Database(object):
 
             for view in os.listdir(directory):
                 v = {}
+                if view.startswith('.'):
+                    continue
                 if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
                     v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
                 if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
