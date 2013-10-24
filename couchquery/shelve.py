@@ -187,7 +187,7 @@ class CouchShelf(UserDict.DictMixin):
 
     def keys(self):
         self.__assertValidState(self.__NM_OP)
-        return self._db.list()
+        return self._db.all_ids()
 
     def values(self):
         self.__assertValidState(self.__NM_OP)

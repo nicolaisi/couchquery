@@ -75,8 +75,9 @@ class Httplib2Client(HttpClient):
 
         if http_override is None:
             if '@' in self.uri:
-                user, password = self.uri.replace('http://','').split('@')[0].split(':')
-                self.uri = 'http://'+self.uri.split('@')[1]
+                protocol = 'https://' if 'https' in self.uri else 'http://'
+                user, password = self.uri.replace(protocol,'').split('@')[0].split(':')
+                self.uri = protocol+self.uri.split('@')[1]
                 if cache is None:
                     cache = '.cache'
                 self.http = httplib2.Http(cache)
@@ -362,6 +363,7 @@ class Database(object):
 
     def get(self, id_, rev=None):
         """Get a single document by id and (optionally) revision from the database."""
+        id_ = urllib.quote(id_)
         if rev is None:
             response = self.http.get(id_)
         else:
@@ -517,6 +519,8 @@ class Database(object):
 
             for view in os.listdir(directory):
                 v = {}
+                if view.startswith('.'):
+                    continue
                 if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
                     v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
                 if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
