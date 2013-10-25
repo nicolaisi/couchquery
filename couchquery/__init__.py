@@ -334,7 +334,8 @@ def createdb(arg):
     else:
         db = Database(arg)
     response = db.http.put('')
-    assert response.status == 201
+    if response.status is not 201:
+        raise CouchDBException(response.body) 
     return json.loads(response.body)
 
 def deletedb(arg):
@@ -343,7 +344,8 @@ def deletedb(arg):
     else:
         db = Database(arg)
     response = db.http.delete('')
-    assert response.status == 200
+    if response.status != 200:
+        raise CouchDBException(response.body)
     return json.loads(response.body)
 
 
