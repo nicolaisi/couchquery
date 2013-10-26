@@ -1,7 +1,8 @@
 Couchquery
 ==========
 
-[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png)](https://coveralls.io/r/nicolaisi/couchquery)[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png)](https://coveralls.io/r/nicolaisi/couchquery)
+[![Build Status](https://travis-ci.org/nicolaisi/couchquery.png?branch=develop)](https://travis-ci.org/nicolaisi/couchquery)
+[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png)](https://coveralls.io/r/nicolaisi/couchquery)
 
 Python library for simple and dynamic access to CouchDB
 
