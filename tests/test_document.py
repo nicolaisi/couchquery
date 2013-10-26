@@ -5,7 +5,7 @@ from couchquery import *
 this_dir = os.path.abspath(os.path.dirname(__file__))
 design_doc = os.path.join(this_dir, 'views')
 
-URI = 'http://tan:test@localhost:5984/couchquery_unittest'
+URI = 'http://localhost:5984/couchquery_unittest'
 
 def setup_module(module):
     db = Database(URI)
@@ -27,7 +27,7 @@ lectroids = [
 def test_db_exists():
     dbf = Database(URI)
     assert dbf.exists() == True
-    dbf = Database('http://tan:test@localhost:5984/this_db_should_likely_not_exist')
+    dbf = Database('http://localhost:5984/this_db_should_likely_not_exist')
     assert dbf.exists() == False
 
 def test_simple_add():
