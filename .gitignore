@@ -1,6 +1,7 @@
 *.pyc
 *~
 
+env/
 build/
 couchquery.egg-info/
 dist/
