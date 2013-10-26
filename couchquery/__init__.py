@@ -314,7 +314,7 @@ class Views(object):
     def __getattr__(self, name):
         if debugging:
             response = self.db.http.head(self.path+name+'/')
-        if not debugging or response.status == 200:
+        if not debugging or response.status == 200 or response.status == 304:
             setattr(self, name, Design(self.db, '_design/'+name))
             return getattr(self, name)
         else:

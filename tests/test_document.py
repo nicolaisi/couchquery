@@ -5,8 +5,10 @@ from couchquery import *
 this_dir = os.path.abspath(os.path.dirname(__file__))
 design_doc = os.path.join(this_dir, 'views')
 
+URI = 'http://tan:test@localhost:5984/couchquery_unittest'
+
 def setup_module(module):
-    db = Database('http://localhost:5984/couchquery_unittest')
+    db = Database(URI)
     createdb(db)
     db.sync_design_doc('banzai', design_doc)
     module.db = db
@@ -23,9 +25,9 @@ lectroids = [
 ]
 
 def test_db_exists():
-    dbf = Database('http://localhost:5984/couchquery_unittest')
+    dbf = Database(URI)
     assert dbf.exists() == True
-    dbf = Database('http://localhost:5984/this_db_should_likely_not_exist')
+    dbf = Database('http://tan:test@localhost:5984/this_db_should_likely_not_exist')
     assert dbf.exists() == False
 
 def test_simple_add():
@@ -34,11 +36,13 @@ def test_simple_add():
 
 def test_bulk_update():
     alldocs = db.views.all()
+    print "DEBUG"
+    print alldocs
     alldocs.species = 'lectroid'
     alldocs.save()
 
 def test_views():
-    rows = db.views.banzai.byType()
+    rows = db.views.banzai.byType(value="_id")
     assert len(rows) is 8
     assert type(rows[0]) is Document
     assert rows.offset is 0
