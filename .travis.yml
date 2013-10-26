@@ -13,7 +13,7 @@ services:
   - couchdb
 
 # command to run tests
-script: nosetests --with-coverage
+script: nosetests --with-coverage --cover-package=couchquery
 
 after_success:
   coveralls

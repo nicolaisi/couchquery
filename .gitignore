@@ -1,6 +1,8 @@
 *.pyc
 *~
 
+.coverage
+
 env/
 build/
 couchquery.egg-info/
