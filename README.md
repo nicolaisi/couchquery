@@ -1,5 +1,7 @@
-couchquery
+Couchquery
 ==========
+
+[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png)](https://coveralls.io/r/nicolaisi/couchquery)[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png)](https://coveralls.io/r/nicolaisi/couchquery)
 
 Python library for simple and dynamic access to CouchDB
 
