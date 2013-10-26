@@ -11,4 +11,7 @@ services:
   - couchdb
 
 # command to run tests
-script: nosetests
+script: nosetests --with-coverage
+
+after_success:
+  coveralls
