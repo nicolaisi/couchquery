@@ -65,7 +65,7 @@ When saving documents you must have the latest revision.
 
     >>> db.update(doc)
     
-Please read on the [document](http://mikeal.github.io/couchquery/) for further information.
+Please read on the [document](http://nicolaisi.github.io/couchquery/) for further information.
 
 Tests
 =====
