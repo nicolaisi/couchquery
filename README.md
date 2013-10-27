@@ -25,11 +25,58 @@ Shutdown using
 
 Installation
 ============
-pip install couchquery
+    
+    pip install couchquery
+    
+
+How to use
+==========
+Couchquery is meant to be a simple python libary for CouchDB
+
+Create a `Database` object for any CouchDB database you would like to interact with.
+
+    >>> db = Database('http://localhost:5984/buckaroo')
+
+Create a new document in the database.
+
+    >>> db.create({'type':'red-lectroid','name':'John Whorfin'})
+    {u'rev': u'1-4198154595', u'ok': True, u'id': u'c581bbc8fd32f49ecb2f8668ed71fe9b'}
+
+After creating a new document you are given the response dict from couch which includes the id of the document. You can also get documents by id.
+
+    >>> info = db.create({'type':'red-lectroid','name':'John Whorfin'})
+    >>> doc = db.get(info['id'])
+    >>> type(doc)
+    <class 'couchquery.Document'>
+
+`Document` objects are just slightly extended dict objects that provide slightly simpler attribute access.
+
+    >>> doc.name
+    "John Worfin"
+    >>> doc['name']
+    "John Worfin"
+    >>> doc.location = "The 8th Dimension"
+    >>> doc.has_key('location')
+    True
+    >>> doc.get('fakeattribute', False)
+    False
+    
+When saving documents you must have the latest revision.
+
+    >>> db.update(doc)
+    
+Please read on the [document](http://mikeal.github.io/couchquery/) for further information.
 
 Tests
 =====
-py.test tests
+If you clone this repository, it is a good practice to run the tests first to make sure that you have a working environment.
+You can do this by either:
+
+    py.test tests
+    
+or
+
+    nosetests
 
 
 
