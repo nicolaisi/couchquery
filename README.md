@@ -1,8 +1,7 @@
 Couchquery
 ==========
-
-[![Build Status](https://travis-ci.org/nicolaisi/couchquery.png?branch=develop)](https://travis-ci.org/nicolaisi/couchquery)
-[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png?branch=develop)](https://coveralls.io/r/nicolaisi/couchquery?branch=develop)
+[![Build Status](https://travis-ci.org/nicolaisi/couchquery.png?branch=master)](https://travis-ci.org/nicolaisi/couchquery)
+[![Coverage Status](https://coveralls.io/repos/nicolaisi/couchquery/badge.png?branch=master)](https://coveralls.io/r/nicolaisi/couchquery?branch=master)
 
 Python library for simple and dynamic access to CouchDB. This libary is authored by Mikeal Rodgers and currently maintained by Nicholas Tan Jerome.
 
