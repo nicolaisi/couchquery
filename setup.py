@@ -19,8 +19,7 @@
 # the Initial Developer. All Rights Reserved.
 #
 # Contributor(s):
-#  Mikeal Rogers <mikeal.rogers@gmail.com>
-#  Michael Ihde <mike.ihde@gmail.com>
+#  https://github.com/nicolaisi/couchquery/graphs/contributors
 #
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -39,10 +38,10 @@
 from setuptools import setup, find_packages
 
 desc = """CouchDB Library"""
-summ = """CouchDB Library"""
+summ = """Python library for simple and dynamic access to CouchDB"""
 
 PACKAGE_NAME = "couchquery"
-PACKAGE_VERSION = "0.9"
+PACKAGE_VERSION = "0.10.0"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
@@ -50,7 +49,7 @@ setup(name=PACKAGE_NAME,
       description=summ,
       author='Mikeal Rogers',
       author_email='mikeal.rogers@gmail.com',
-      url='http://mikeal.github.com/couchquery',
+      url='http://nicolaisi.github.io/couchquery/',
       license='MPL 1.1/GPL 2.0/LGPL 2.1',
       packages=find_packages(exclude=['test']),
       include_package_data=True,
