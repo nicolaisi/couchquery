@@ -66,6 +66,15 @@ When saving documents you must have the latest revision.
     
 Please read on the [document](http://nicolaisi.github.io/couchquery/) for further information.
 
+Changes
+=======
+0.10.0
+
++ https support
++ supports credentials usage
++ support url encoding on document id
++ better error message for createdb and deletedb
+
 Tests
 =====
 If you clone this repository, it is a good practice to run the tests first to make sure that you have a working environment.
