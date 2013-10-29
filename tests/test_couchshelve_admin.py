@@ -7,7 +7,7 @@ import couchquery
 import unittest
 import pickle
 
-URI = 'http://localhost:5984/shelve'
+URI = 'https://couchquery.iriscouch.com/shelve'
 
 class TestCouchShelve(unittest.TestCase):
 

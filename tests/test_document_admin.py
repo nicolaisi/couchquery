@@ -5,7 +5,7 @@ from couchquery import *
 this_dir = os.path.abspath(os.path.dirname(__file__))
 design_doc = os.path.join(this_dir, 'views')
 
-BASE_URI = 'http://localhost:5984/'
+BASE_URI = 'https://couchquery.iriscouch.com/'
 URI = BASE_URI + 'couchquery_unittest'
 
 def setup_module(module):
