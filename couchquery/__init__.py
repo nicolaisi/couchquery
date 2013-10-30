@@ -5,6 +5,7 @@ import types
 from urlparse import urlparse
 
 import httplib2
+import sys, os.path
 
 __version__ = '0.10.0'
 debugging = True
@@ -81,7 +82,8 @@ class Httplib2Client(HttpClient):
                 self.uri = protocol+self.uri.split('@')[1]
                 if cache is None:
                     cache = '.cache'
-                self.http = httplib2.Http(cache)
+                #path = os.path.dirname(os.path.abspath(__file__))+"contrib/DigiCertHighAssuranceEVRootCA.pem"
+                self.http = httplib2.Http(cache, disable_ssl_certificate_validation=True)
                 self.http.add_credentials(user, password)
             else:
                 self.http = httplib2.Http(cache)
@@ -363,6 +365,8 @@ class Database(object):
         else:
             self.http = http
         self.views = Views(self)
+        
+        
 
     def get(self, id_, rev=None):
         """Get a single document by id and (optionally) revision from the database."""

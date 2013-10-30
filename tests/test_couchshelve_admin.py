@@ -2,12 +2,15 @@
 import sys, os.path
 mydir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(mydir, "..")))
-from couchquery import shelve
+
 import couchquery
 import unittest
 import pickle
+from couchquery import shelve
+
 
 URI = 'https://couchquery:C9k3jXitDNrX76D3nbbHKYQj547H8B8H@couchquery.cloudant.com/shelve'
+
 
 class TestCouchShelve(unittest.TestCase):
 
