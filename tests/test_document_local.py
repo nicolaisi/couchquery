@@ -37,8 +37,6 @@ def test_simple_add():
 
 def test_bulk_update():
     alldocs = db.views.all()
-    print "DEBUG"
-    print alldocs
     alldocs.species = 'lectroid'
     alldocs.save()
 
@@ -97,3 +95,4 @@ def test_revisions():
 
 def teardown_module(module):
     deletedb(module.db)
+
