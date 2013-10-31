@@ -557,11 +557,6 @@ class Database(object):
         return info
 
 
-def set_global_db(_gdb):
-    global global_db
-    global_db = _gdb
-
-
 class Document(dict):
     def __init__(self, *args, **kwargs):
         if 'db' in kwargs:
