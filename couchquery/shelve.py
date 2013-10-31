@@ -93,12 +93,7 @@ into.
 
 import couchquery
 import UserDict
-
-# Try using cPickle
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import cPickle as pickle
 
 class ConflictError(StandardError):
     pass
