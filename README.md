@@ -5,7 +5,7 @@ Couchquery
 
 Python library for simple and dynamic access to CouchDB. This libary is authored by Mikeal Rogers and currently maintained by Nicholas Tan Jerome.
 
-Further document on this library can be obtained [hier](http://mikeal.github.io/couchquery/)
+Further document on this library can be obtained [hier](http://nicolaisi.github.io/couchquery/)
 
 
 Getting Started
