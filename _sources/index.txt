@@ -27,13 +27,17 @@ Installation
    $ python ez_setup.py
    $ easy_install -U httplib2
 
+If you are running Python 2.5 or earlier you will also need simplejson::
+
+   $ easy_install simplejson
+
 Now you can install couchquery::
 
-   $ easy_install couchquery
+   $ pip install couchquery
 
-The source code is publicly `available on github <http://github.com/mikeal/couchquery>`_. Tickets should be logged on the `github issues tracker <http://github.com/mikeal/couchquery/issues>`_. 
+The source code is publicly `available on github <https://github.com/nicolaisi/couchquery>`_. Tickets should be logged on the `github issues tracker <https://github.com/nicolaisi/couchquery/issues?state=open>`_. 
 
-The process for code contributions is for users to `fork the repository on github <http://help.github.com/forking/>`_, push modifications to their public fork, and then send `mikeal <http://github.com/mikeal>`_ a `pull request <http://github.com/guides/pull-requests>`_.
+The process for code contributions is for users to `fork the repository on github <http://help.github.com/forking/>`_, push modifications to their public fork, and then send `Nicholas <http://github.com/nicolaisi>`_ a `pull request <http://github.com/guides/pull-requests>`_.
 
 .. _working-with-documents:
 
