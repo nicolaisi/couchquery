@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-CLEANUP       = "/Users/mikeal/Documents/git/couchquery/cleanup.py"
+CLEANUP       = "/home/ntj/Development/couchquery/cleanup.py"
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
