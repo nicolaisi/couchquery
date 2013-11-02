@@ -1,11 +1,11 @@
 import os
+import sys
 import urllib
 import copy
 import types
 from urlparse import urlparse
 
 import httplib2
-import sys, os.path
 
 __version__ = '0.10.0'
 debugging = True
@@ -22,26 +22,39 @@ except:
             import json
 
 JSON_HEADERS = {"content-type": "application/json",
-                "accept"      : "application/json"}
+                "accept": "application/json"}
 
 design_template = {"_id": "_design/"}
 
-content_type_table = {'js': 'application/x-javascript', 'html': 'text/html; charset=utf-8',
-                      'fallback': 'text/plain; charset=utf-8', 'ogg': 'application/ogg',
-                      'xhtml': 'text/html; charset=utf-8', 'rm': 'audio/vnd.rn-realaudio',
+content_type_table = {'js': 'application/x-javascript',
+                      'html': 'text/html; charset=utf-8',
+                      'fallback': 'text/plain; charset=utf-8',
+                      'ogg': 'application/ogg',
+                      'xhtml': 'text/html; charset=utf-8',
+                      'rm': 'audio/vnd.rn-realaudio',
                       'swf': 'application/x-shockwave-flash',
-                      'mp3': 'audio/mpeg', 'wma': 'audio/x-ms-wma',
-                      'ra': 'audio/vnd.rn-realaudio', 'wav': 'audio/x-wav',
-                      'gif': 'image/gif', 'jpeg': 'image/jpeg',
-                      'jpg': 'image/jpeg', 'png': 'image/png',
-                      'tiff': 'image/tiff', 'css': 'text/css; charset=utf-8',
-                      'mpeg': 'video/mpeg', 'mp4': 'video/mp4',
-                      'qt': 'video/quicktime', 'mov': 'video/quicktime',
-                      'wmv': 'video/x-ms-wmv', 'atom': 'application/atom+xml; charset=utf-8',
-                      'xslt': 'application/xslt+xml', 'svg': 'image/svg+xml',
+                      'mp3': 'audio/mpeg',
+                      'wma': 'audio/x-ms-wma',
+                      'ra': 'audio/vnd.rn-realaudio',
+                      'wav': 'audio/x-wav',
+                      'gif': 'image/gif',
+                      'jpeg': 'image/jpeg',
+                      'jpg': 'image/jpeg',
+                      'png': 'image/png',
+                      'tiff': 'image/tiff',
+                      'css': 'text/css; charset=utf-8',
+                      'mpeg': 'video/mpeg',
+                      'mp4': 'video/mp4',
+                      'qt': 'video/quicktime',
+                      'mov': 'video/quicktime',
+                      'wmv': 'video/x-ms-wmv',
+                      'atom': 'application/atom+xml; charset=utf-8',
+                      'xslt': 'application/xslt+xml',
+                      'svg': 'image/svg+xml',
                       'mathml': 'application/mathml+xml',
                       'rss': 'application/rss+xml; charset=utf-8',
                       'ics': 'text/calendar; charset=utf-8'}
+
 
 class HttpResponse(object):
     pass
@@ -78,12 +91,15 @@ class Httplib2Client(HttpClient):
         if http_override is None:
             if '@' in self.uri:
                 protocol = 'https://' if 'https' in self.uri else 'http://'
-                user, password = self.uri.replace(protocol,'').split('@')[0].split(':')
+                user, password = self.uri.replace(protocol, '').split('@')[0].split(':')
                 self.uri = protocol+self.uri.split('@')[1]
                 if cache is None:
                     cache = '.cache'
-                #path = os.path.dirname(os.path.abspath(__file__))+"contrib/DigiCertHighAssuranceEVRootCA.pem"
-                self.http = httplib2.Http(cache, disable_ssl_certificate_validation=True)
+                #path = os.path.dirname(os.path.abspath(__file__))+
+                #"contrib/DigiCertHighAssuranceEVRootCA.pem"
+                self.http = httplib2.Http(
+                                        cache, 
+                                        disable_ssl_certificate_validation=True)
                 self.http.add_credentials(user, password)
             else:
                 self.http = httplib2.Http(cache)
@@ -151,7 +167,9 @@ class RowSet(object):
     def __iter__(self):
         for i in xrange(len(self.__rows)):
             x = self.__rows[i]
-            if type(x) is dict and type(x['value']) is dict and x['value'].has_key('_id'):
+            if (type(x) is dict and 
+                type(x['value']) is dict and
+                '_id' in x['value']):
                 doc = Document(x['value'], db=self.__db)
                 self.__rows[i]['value'] = doc
                 yield doc
@@ -168,18 +186,21 @@ class RowSet(object):
         if type(i) is int:
             if i > len(self.__rows):
                 raise IndexError("out of range")
-            if ( type(self.__rows[i]) is dict ) and (
-                 type(self.__rows[i]) is not Document ) and (
-                 type(self.__rows[i]['value']) is dict ) and (
-                 self.__rows[i]['value'].has_key('_id') ):
-                doc = Document(self.__rows[i]['value'], db=self.__db)
+            if (type(self.__rows[i]) is dict and
+                 type(self.__rows[i]) is not Document and
+                 type(self.__rows[i]['value']) is dict and
+                 self.__rows[i]['value'].has_key('_id')):
+                doc = Document(self.__rows[i]['value'], 
+                               db=self.__db)
                 self.__rows[i]['value'] = doc
                 return doc
             else:
                 return self.__rows[i]['value']
 
         else:
-            return RowSet(self.__db, [r for r in self.__rows if r['key'] == i], parent=self)
+            return RowSet(self.__db, 
+                          [r for r in self.__rows if r['key'] == i], 
+                          parent=self)
 
     def get(self, i, default=None):
         try:
@@ -188,7 +209,10 @@ class RowSet(object):
             return default
 
     def __setattr__(self, name, obj):
-        if name.startswith("__") or name.startswith("_"+type(self).__name__.split('.')[-1]+"__"):
+        if (name.startswith("__") or 
+            name.startswith("_" + 
+                            type(self).__name__.split('.')[-1] + 
+                            "__")):
             return object.__setattr__(self, name, obj)
         for x in self:
             x[name] = obj
