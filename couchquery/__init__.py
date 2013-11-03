@@ -91,15 +91,16 @@ class Httplib2Client(HttpClient):
         if http_override is None:
             if '@' in self.uri:
                 protocol = 'https://' if 'https' in self.uri else 'http://'
-                user, password = self.uri.replace(protocol, '').split('@')[0].split(':')
+                cleaned_uri = self.uri.replace(protocol, '')
+                user, password = cleaned_uri.split('@')[0].split(':')
                 self.uri = protocol+self.uri.split('@')[1]
                 if cache is None:
                     cache = '.cache'
                 #path = os.path.dirname(os.path.abspath(__file__))+
                 #"contrib/DigiCertHighAssuranceEVRootCA.pem"
                 self.http = httplib2.Http(
-                                        cache, 
-                                        disable_ssl_certificate_validation=True)
+                    cache,
+                    disable_ssl_certificate_validation=True)
                 self.http.add_credentials(user, password)
             else:
                 self.http = httplib2.Http(cache)
@@ -107,7 +108,11 @@ class Httplib2Client(HttpClient):
             self.http = http_override
 
     def request(self, path, method, headers, body=None):
-        return self.http.request(self.uri + path, method, headers=headers, body=body, redirections=0)
+        return self.http.request(self.uri + path,
+                                 method,
+                                 headers=headers,
+                                 body=body,
+                                 redirections=0)
 
     get = httplib2MethodWrapper("GET")
     put = httplib2MethodWrapper("PUT")
@@ -154,7 +159,8 @@ class RowSet(object):
     def offset(self):
         if self.__offset is None:
             if self.__parent is not None and self.__parent.offset is not None:
-                self.__offset = self.__parent.offset + self.__parent.__rows.index(self.__rows[0])
+                self.__offset = (self.__parent.offset +
+                                 self.__parent.__rows.index(self.__rows[0]))
             else:
                 self.__offset = None
         return self.__offset
@@ -167,9 +173,9 @@ class RowSet(object):
     def __iter__(self):
         for i in xrange(len(self.__rows)):
             x = self.__rows[i]
-            if (type(x) is dict and 
-                type(x['value']) is dict and
-                '_id' in x['value']):
+            if (type(x) is dict and
+                    type(x['value']) is dict and
+                    '_id' in x['value']):
                 doc = Document(x['value'], db=self.__db)
                 self.__rows[i]['value'] = doc
                 yield doc
@@ -187,10 +193,10 @@ class RowSet(object):
             if i > len(self.__rows):
                 raise IndexError("out of range")
             if (type(self.__rows[i]) is dict and
-                 type(self.__rows[i]) is not Document and
-                 type(self.__rows[i]['value']) is dict and
-                 self.__rows[i]['value'].has_key('_id')):
-                doc = Document(self.__rows[i]['value'], 
+                    type(self.__rows[i]) is not Document and
+                    type(self.__rows[i]['value']) is dict and
+                    '_id' in self.__rows[i]['value']):
+                doc = Document(self.__rows[i]['value'],
                                db=self.__db)
                 self.__rows[i]['value'] = doc
                 return doc
@@ -198,8 +204,8 @@ class RowSet(object):
                 return self.__rows[i]['value']
 
         else:
-            return RowSet(self.__db, 
-                          [r for r in self.__rows if r['key'] == i], 
+            return RowSet(self.__db,
+                          [r for r in self.__rows if r['key'] == i],
                           parent=self)
 
     def get(self, i, default=None):
@@ -209,9 +215,9 @@ class RowSet(object):
             return default
 
     def __setattr__(self, name, obj):
-        if (name.startswith("__") or 
-            name.startswith("_" + 
-                            type(self).__name__.split('.')[-1] + 
+        if (name.startswith("__") or
+            name.startswith("_" +
+                            type(self).__name__.split('.')[-1] +
                             "__")):
             return object.__setattr__(self, name, obj)
         for x in self:
@@ -236,7 +242,9 @@ class RowSet(object):
 #         return len(self.result["rows"])
 
 
-class ViewException(Exception): pass
+class ViewException(Exception):
+    pass
+
 
 class View(object):
     def __init__(self, db, path):
@@ -251,8 +259,10 @@ class View(object):
         #         kwargs[k] = json.dumps(v)
         qs = {}
         for k, v in kwargs.iteritems():
-            if 'docid' not in k and k != 'stale': qs[k] = json.dumps(v)
-            else: qs[k] = v
+            if 'docid' not in k and k != 'stale':
+                qs[k] = json.dumps(v)
+            else:
+                qs[k] = v
 
         query_string = urllib.urlencode(qs)
         if len(query_string) is not 0:
@@ -267,8 +277,10 @@ class View(object):
 
         result = json.loads(response.body)
         if response.status == 200:
-            return RowSet(self.db, result['rows'], offset=result.get('offset', None),
-                           total_rows=result.get('total_rows'))
+            return RowSet(self.db,
+                          result['rows'],
+                          offset=result.get('offset', None),
+                          total_rows=result.get('total_rows'))
         else:
             raise ViewException(result)
 
@@ -288,7 +300,9 @@ class Design(object):
             raise AttributeError("No view named "+name+". "+response.body)
 
 
-class TempViewException(Exception): pass
+class TempViewException(Exception):
+    pass
+
 
 class Views(object):
     def __init__(self, db):
@@ -314,16 +328,22 @@ class Views(object):
         response = self.db.http.post(path, body=body)
         if response.status == 200:
             result = json.loads(response.body)
-            return RowSet(self.db, result['rows'], offset=result['offset'],
-                           total_rows=result['total_rows'])
+            return RowSet(self.db,
+                          result['rows'],
+                          offset=result['offset'],
+                          total_rows=result['total_rows'])
         else:
-            raise TempViewException('Status: '+str(response.status)+'\nBody: '+response.body)
+            raise TempViewException('Status: ' +
+                                    str(response.status) +
+                                    '\nBody: ' +
+                                    response.body)
 
     def all(self, keys=None, include_docs=True, **kwargs):
         kwargs['include_docs'] = include_docs
-        qs = '&'.join( k+'='+json.dumps(v) for k,v in kwargs.iteritems() )
+        qs = '&'.join(k+'='+json.dumps(v) for k, v in kwargs.iteritems())
         if keys:
-            response = self.db.http.post('_all_docs?' + qs, body=json.dumps({"keys": keys}))
+            response = self.db.http.post(
+                '_all_docs?' + qs, body=json.dumps({"keys": keys}))
         else:
             response = self.db.http.get('_all_docs?' + qs)
         if response.status == 200:
@@ -333,7 +353,9 @@ class Views(object):
                 if 'doc' in row:
                     row['rev'] = row['value']['rev']
                     row['value'] = row['doc']
-            return RowSet(self.db, result['rows'], offset=result.get('offset', None),
+            return RowSet(self.db,
+                          result['rows'],
+                          offset=result.get('offset', None),
                           total_rows=result.get('total_rows', None))
         else:
             raise Exception(response.body)
@@ -348,11 +370,16 @@ class Views(object):
             raise AttributeError("No view named "+name)
 
 
-class CouchDBException(Exception): pass
+class CouchDBException(Exception):
+    pass
 
-class CouchDBDocumentConflict(Exception): pass
 
-class CouchDBDocumentDoesNotExist(Exception): pass
+class CouchDBDocumentConflict(Exception):
+    pass
+
+
+class CouchDBDocumentDoesNotExist(Exception):
+    pass
 
 
 def createdb(arg):
@@ -362,8 +389,9 @@ def createdb(arg):
         db = Database(arg)
     response = db.http.put('')
     if response.status is not 201:
-        raise CouchDBException(response.body) 
+        raise CouchDBException(response.body)
     return json.loads(response.body)
+
 
 def deletedb(arg):
     if type(arg) is Database:
@@ -389,18 +417,18 @@ class Database(object):
         else:
             self.http = http
         self.views = Views(self)
-        
-        
 
     def get(self, id_, rev=None):
-        """Get a single document by id and (optionally) revision from the database."""
+        """Get a single document by id and
+        (optionally) revision from the database."""
         id_ = urllib.quote(id_)
         if rev is None:
             response = self.http.get(id_)
         else:
             response = self.http.get(id_+"?rev="+rev)
         if response.status == 200:
-            obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
+            obj = dict((str(k), v)
+                       for k, v in json.loads(response.body).iteritems())
             return Document(obj, db=self)
         else:
             raise CouchDBDocumentDoesNotExist("No document at id "+id_)
@@ -422,7 +450,8 @@ class Database(object):
     def all_ids(self):
         """List all documents ids in the database."""
         response = self.http.get("_all_docs")
-        obj = dict( (str(k),v) for k,v in json.loads(response.body).iteritems() )
+        obj = dict((str(k), v)
+                   for k, v in json.loads(response.body).iteritems())
         ids = []
         for row in obj["rows"]:
             ids.append(str(row["id"]))
@@ -435,10 +464,16 @@ class Database(object):
         return True
 
     def create(self, doc, all_or_nothing=False):
-        """Create a document. Accepts any object that can be converted in to a dict.
-        If multiple documents are passed they are handed off to the bulk document handler.
+        """Create a document. Accepts any object that can be
+        converted in to a dict. If multiple documents are passed
+        they are handed off to the bulk document handler.
         """
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
+        if type(doc) not in (dict,
+                             Document,
+                             list,
+                             tuple,
+                             types.GeneratorType,
+                             RowSet):
             doc = dict(doc)
 
         # Hand off to bulk handler when passing multiple documents
@@ -452,10 +487,16 @@ class Database(object):
             raise CouchDBException(response.body)
 
     def update(self, doc, all_or_nothing=False):
-        """Update a document. Accepts any object that can be converted in to a dict.
-        If multiple documents are passed they are handed off to the bulk document handler.
+        """Update a document. Accepts any object that can be
+        converted in to a dict. If multiple documents are passed
+        they are handed off to the bulk document handler.
         """
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
+        if type(doc) not in (dict,
+                             Document,
+                             list,
+                             tuple,
+                             types.GeneratorType,
+                             RowSet):
             doc = dict(doc)
 
         # Hand off to bulk handler when passing multiple documents
@@ -471,11 +512,17 @@ class Database(object):
             raise CouchDBException(response.body)
 
     def delete(self, doc, all_or_nothing=False):
-        """Delete a document. Accepts any object that can be converted in to a dict.
-        Document/s must contain _id and _rev properties.
-        If multiple documents are passed they are removed using the bulk document API.
+        """Delete a document. Accepts any object that can be
+        converted in to a dict. Document/s must contain _id
+        and _rev properties. If multiple documents are passed
+        they are removed using the bulk document API.
         """
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
+        if type(doc) not in (dict,
+                             Document,
+                             list,
+                             tuple,
+                             types.GeneratorType,
+                             RowSet):
             doc = dict(doc)
         if type(doc) not in (list, tuple, types.GeneratorType, RowSet):
             response = self.http.delete(doc['_id']+'?rev='+str(doc['_rev']))
@@ -490,14 +537,19 @@ class Database(object):
             raise CouchDBException("Delete failed "+response.body)
 
     def save(self, doc, all_or_nothing=False):
-        if type(doc) not in (dict, Document, list, tuple, types.GeneratorType, RowSet):
+        if type(doc) not in (dict,
+                             Document,
+                             list,
+                             tuple,
+                             types.GeneratorType,
+                             RowSet):
             doc = dict(doc)
 
         # Hand off to bulk handler when passing multiple documents
         if type(doc) in (list, tuple, types.GeneratorType, RowSet):
             return self.bulk(doc, all_or_nothing=all_or_nothing)
 
-        if doc.has_key('_id') :
+        if '_id' in doc:
             return self.update(doc)
         else:
             return self.create(doc)
@@ -524,15 +576,18 @@ class Database(object):
         else:
             body = f
             if content_type is None:
-                raise Exception("Cannot send a string body without a content-type.")
+                raise Exception("Cannot send a string body"
+                                " without a content-type.")
             if name is None:
-                raise Exception("Cannot send a string body with a name.")
+                raise Exception("Cannot send a string body"
+                                " with a name.")
         if rev:
             path = id_+'/'+name+'?rev='+rev
         else:
             path = id_+'/'+name
 
-        response = self.http.put(path, body=body, headers={'content-type': content_type})
+        response = self.http.put(
+            path, body=body, headers={'content-type': content_type})
         assert response.status == 201
         return json.loads(response.body)
 
@@ -550,9 +605,11 @@ class Database(object):
             if view.startswith('.'):
                 continue
             if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
-                v['map'] = open(os.path.join(directory, view, 'map.'+ext), 'r').read()
+                v['map'] = open(
+                    os.path.join(directory, view, 'map.'+ext), 'r').read()
             if os.path.isfile(os.path.join(directory, view, 'reduce.'+ext)):
-                v['reduce'] = open(os.path.join(directory, view, 'reduce.'+ext), 'r').read()
+                v['reduce'] = open(
+                    os.path.join(directory, view, 'reduce.'+ext), 'r').read()
             d[view.split('.')[0]] = v
             document['views'] = d
         try:
@@ -607,5 +664,4 @@ class Document(dict):
 #         self.putrequest("GET", self._url)
 #         self.endheaders()
 #         self.getresponse()
-
 
