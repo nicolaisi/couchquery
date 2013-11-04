@@ -11,7 +11,7 @@
 # for the specific language governing rights and limitations under the
 # License.
 #
-# The Original Code is Randomwalking Code 
+# The Original Code is Randomwalking Code
 #
 # The Initial Developer of the Original Code is
 # Michael Ihde.
@@ -50,7 +50,8 @@ To summarize the interface (key is a string, data is an arbitrary
 object):
 
         from couchquery import shelve
-        d = shelve.open('http://localhost:5984/example') # open the couch database 'example'
+        d = shelve.open('http://localhost:5984/example') # open the couch
+                                                         # database 'example'
 
         d[key] = data   # store data at key (overwrites old data if
                         # using an existing key)
@@ -62,7 +63,7 @@ object):
         list = d.keys() # a list of all existing keys
         list = d.values() # a list of all existing values (very slow!)
         list = d.items()  # a list of all existing key-value pairs (very slow!)
-        iter = d.iteritems()  # an iterable that goes through all key-value pairs
+        iter = d.iteritems() # a iterable that goes through all key-value pairs
 
         d.close()       # close it
 
@@ -80,7 +81,7 @@ overwrite whatever value is in the database.
 However, if their are a large number concurrent writers, their is a possibility
 that a couchdb conflict will occur.  The default behavior is to continue to try
 the write until it succeeds.  Therefore, the ordering of writes is not
-guaranteed nor is the timeliness of the writes guaranteed.  
+guaranteed nor is the timeliness of the writes guaranteed.
 
 As an alternative, you can pass the keyword argument raiseconflicts=True and
 any attempt to write a key will raise a ConflictError and update the cache for
@@ -103,9 +104,10 @@ except ImportError:
 class ConflictError(StandardError):
     pass
 
+
 class CouchShelf(UserDict.DictMixin):
     """A 'shelf' implemented using couchdb as a backend
-    
+
     See the module's __doc__ string for an overview of the interface.
     """
     __MODIFYING_OPERATION = 0
@@ -128,7 +130,7 @@ class CouchShelf(UserDict.DictMixin):
         self._cache = {}
 
     def __assertValidState(self, operationtype):
-        if self._db == None:
+        if self._db is None:
             raise ValueError
         if self._flag == 'r' and action == self.__MODIFYING_OPERATION:
             raise ValueError
@@ -147,7 +149,7 @@ class CouchShelf(UserDict.DictMixin):
             value = pickle.loads(str(doc.value))
             if self._writeback:
                 self._cache[key] = value
-        return value 
+        return value
 
     def __setitem__(self, key, value):
         self.__assertValidState(self.__M_OP)
@@ -192,7 +194,7 @@ class CouchShelf(UserDict.DictMixin):
     def values(self):
         self.__assertValidState(self.__NM_OP)
 
-        if self._db == None:
+        if self._db is None:
             raise ValueError
 
         values = []
@@ -203,7 +205,7 @@ class CouchShelf(UserDict.DictMixin):
     def items(self):
         self.__assertValidState(self.__NM_OP)
 
-        if self._db == None:
+        if self._db is None:
             raise ValueError
 
         items = []
@@ -214,14 +216,14 @@ class CouchShelf(UserDict.DictMixin):
     def iteritems(self):
         self.__assertValidState(self.__NM_OP)
 
-        if self._db == None:
+        if self._db is None:
             raise ValueError
 
         for key in self.keys():
             yield (key, self[key])
 
     def sync(self):
-        if self._db == None:
+        if self._db is None:
             raise ValueError
 
         if self._writeback and self._cache:
@@ -235,13 +237,15 @@ class CouchShelf(UserDict.DictMixin):
         self.sync()
         self._db = None
 
+
 def open(uri, flag='c', writeback=False, raiseconflicts=False):
-    """Open a persistent dictionary (backed by couchdb) for reading and writing.
+    """Open a persistent dictionary (backed by couchdb) for reading and writing
 
     The uri parameter is the URI for the underlying couchdb database.  The flag
     parameter is:
-    
-        'c' : open existing database for reading and writing, creating it if it doesn't exist ('default')
+
+        'c' : open existing database for reading and writing, creating it if it
+              doesn't exist ('default')
         'w' : open existing database for reading and writing
         'r' : open existing database for reading
         'n' : always create a new empty database, open for reading and writing
@@ -249,3 +253,4 @@ def open(uri, flag='c', writeback=False, raiseconflicts=False):
     See the module's __doc__ string for an overview of the interface.
     """
     return CouchShelf(uri, flag, writeback, raiseconflicts)
+
