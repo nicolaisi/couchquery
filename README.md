@@ -68,6 +68,11 @@ Please read on the [document](http://nicolaisi.github.io/couchquery/) for furthe
 
 Changes
 =======
+
+0.10.1
+
++ Hotfix: should not raise exception when it returns Http response 304. 
+
 0.10.0
 
 + https support

@@ -41,7 +41,7 @@ desc = """CouchDB Library"""
 summ = """Python library for simple and dynamic access to CouchDB"""
 
 PACKAGE_NAME = "couchquery"
-PACKAGE_VERSION = "0.10.0"
+PACKAGE_VERSION = "0.10.1"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
