@@ -8,7 +8,6 @@ from urlparse import urlparse
 import httplib2
 
 __version__ = '0.10.1'
-debugging = True
 
 try:
     import jsonlib2 as json
@@ -291,9 +290,7 @@ class Design(object):
         self._id = _id
 
     def __getattr__(self, name):
-        if debugging:
-            response = self.db.http.head(self._id+'/_view/'+name+'/')
-        if not debugging or response.status == 200 or response.status == 304:
+        if response.status == 200 or response.status == 304:
             setattr(self, name, View(self.db, self._id+'/_view/'+name+'/'))
             return getattr(self, name)
         else:
@@ -361,9 +358,7 @@ class Views(object):
             raise Exception(response.body)
 
     def __getattr__(self, name):
-        if debugging:
-            response = self.db.http.head(self.path+name+'/')
-        if not debugging or response.status == 200 or response.status == 304:
+        if response.status == 200 or response.status == 304:
             setattr(self, name, Design(self.db, '_design/'+name))
             return getattr(self, name)
         else:
