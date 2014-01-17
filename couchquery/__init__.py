@@ -7,7 +7,7 @@ from urlparse import urlparse
 
 import httplib2
 
-__version__ = '0.10.0'
+__version__ = '0.10.1'
 debugging = True
 
 try:
