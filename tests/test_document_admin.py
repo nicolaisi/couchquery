@@ -8,22 +8,22 @@ design_doc = os.path.join(this_dir, 'views')
 BASE_URI = 'https://couchquery:C9k3jXitDNrX76D3nbbHKYQj547H8B8H@couchquery.cloudant.com/'
 URI = BASE_URI + 'couchquery_unittest'
 
+lectroids = [
+        {'type':'red-lectroid',   'name':'John Whorfin'},
+        {'type':'black-lectroid', 'name':'John Parker'},
+        {'type':'red-lectroid',   'name':'John Bigboote'},
+        {'type':'red-lectroid',   'name':"John O'Connor"},
+        {'type':'red-lectroid',   'name':"John Gomez"},
+        {'type':'black-lectroid', 'name':"John Emdall"},
+        {'type':'red-lectroid',   'name':"John YaYa"},
+        {'type':'red-lectroid',   'name':"John Small Berries"},
+]
+
 def setup_module(module):
     db = Database(URI)
     createdb(db)
     db.sync_design_doc('banzai', design_doc)
     module.db = db
-
-lectroids = [
-    {'type':'red-lectroid',   'name':'John Whorfin'},
-    {'type':'black-lectroid', 'name':'John Parker'},
-    {'type':'red-lectroid',   'name':'John Bigboote'},
-    {'type':'red-lectroid',   'name':"John O'Connor"},
-    {'type':'red-lectroid',   'name':"John Gomez"},
-    {'type':'black-lectroid', 'name':"John Emdall"},
-    {'type':'red-lectroid',   'name':"John YaYa"},
-    {'type':'red-lectroid',   'name':"John Small Berries"},
-]
 
 def test_db_exists():
     dbf = Database(URI)
@@ -37,8 +37,6 @@ def test_simple_add():
 
 def test_bulk_update():
     alldocs = db.views.all()
-    print "DEBUG"
-    print alldocs
     alldocs.species = 'lectroid'
     alldocs.save()
 
