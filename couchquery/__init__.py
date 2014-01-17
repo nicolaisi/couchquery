@@ -295,7 +295,7 @@ class Design(object):
             setattr(self, name, View(self.db, self._id+'/_view/'+name+'/'))
             return getattr(self, name)
         else:
-            raise AttributeError("No view named "+name+". "+response.body)
+            raise AttributeError("No view named "+name+". "+str(response.status))
 
 
 class TempViewException(Exception):
@@ -364,7 +364,7 @@ class Views(object):
             setattr(self, name, Design(self.db, '_design/'+name))
             return getattr(self, name)
         else:
-            raise AttributeError("No view named "+name)
+            raise AttributeError("No view named "+name + " "+str(response.status))
 
 
 class CouchDBException(Exception):
