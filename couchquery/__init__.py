@@ -290,7 +290,7 @@ class Design(object):
         self._id = _id
 
     def __getattr__(self, name):
-        response = self.db.http.head(self.path+name+'/')
+        response = self.db.http.head(self._id+name+'/')
         if response.status == 200 or response.status == 304:
             setattr(self, name, View(self.db, self._id+'/_view/'+name+'/'))
             return getattr(self, name)
