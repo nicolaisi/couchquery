@@ -444,6 +444,13 @@ class Database(object):
             else:
                 yield rev["rev"]
 
+    def compaction(self):
+        """Compact database [http://wiki.apache.org/couchdb/Compaction]"""
+        response = self.http.post("_compact")
+        if response.status == 404:
+            return False
+        return True
+
     def all_ids(self):
         """List all documents ids in the database."""
         response = self.http.get("_all_docs")

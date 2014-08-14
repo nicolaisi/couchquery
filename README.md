@@ -68,6 +68,10 @@ Please read on the [document](http://nicolaisi.github.io/couchquery/) for furthe
 
 Changes
 =======
+0.10.2
+
++ feature: added compaction method
+
 
 0.10.1
 
