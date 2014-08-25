@@ -121,16 +121,20 @@ class Httplib2Client(HttpClient):
 
 
 class RowSet(object):
-    def __init__(self, db, rows, offset=None, total_rows=None, parent=None):
+    def __init__(self, db, rows, offset=None, last_seq=None, total_rows=None, parent=None):
         self.__db = db
         self.__rows = rows
         self.__changes = []
         self.__parent = parent
         self.__offset = offset
+        self.__last_seq = last_seq
         object.__setattr__(self, 'total_rows', total_rows)
 
     def raw_rows(self):
         return self.__rows
+
+    def last_seq(self):
+        return self.__last_seq
 
     def keys(self):
         return [x['key'] for x in self.__rows]
@@ -140,6 +144,12 @@ class RowSet(object):
 
     def ids(self):
         return [x['id'] for x in self.__rows]
+
+    def seq(self):
+        return [x['seq'] for x in self.__rows]
+
+    def changes(self):
+        return [x['changes'] for x in self.__rows]
 
     def items(self, key='key', value='value'):
         if value == 'value':
@@ -241,6 +251,47 @@ class RowSet(object):
 #         return len(self.result["rows"])
 
 
+class FilterException(Exception):
+    pass
+
+
+class Filter(object):
+    def __init__(self, db, path):
+        self.db = db
+        self.path = path
+
+    def __call__(self, keys=None, **kwargs):
+        # for k, v in kwargs.items():
+        #     if type(v) is bool:
+        #         kwargs[k] = str(v).lower()
+        #     if k in ['key', 'startkey', 'endkey']:
+        #         kwargs[k] = json.dumps(v)
+        qs = {}
+        for k, v in kwargs.iteritems():
+            if 'docid' not in k and k != 'stale':
+                qs[k] = json.dumps(v)
+            else:
+                qs[k] = v
+
+        query_string = urllib.urlencode(qs)
+        if len(query_string) is not 0:
+            path = self.path + '?' + query_string
+        else:
+            path = self.path
+        if not keys:
+            response = self.db.http.get(path)
+        else:
+            response = self.db.http.post(path, body=json.dumps({'keys': keys}))
+
+        result = json.loads(response.body)
+        if response.status == 200:
+            return RowSet(self.db,
+                          result['results'],
+                          last_seq=result['last_seq'])
+        else:
+            raise FilterException(result)
+
+
 class ViewException(Exception):
     pass
 
@@ -290,12 +341,35 @@ class Design(object):
         self._id = _id
 
     def __getattr__(self, name):
-        response = self.db.http.head(self._id+name+'/')
+        response = self.db.http.head(self._id+'/_view/'+name+'/')
         if response.status == 200 or response.status == 304:
             setattr(self, name, View(self.db, self._id+'/_view/'+name+'/'))
             return getattr(self, name)
         else:
             raise AttributeError("No view named "+name+". "+str(response.status))
+
+
+class Changes(object):
+    def __init__(self, db, _id):
+        self.db = db
+        self._id = _id
+
+    def __getattr__(self, name):
+        response = self.db.http.head(self._id+'/'+name+'/')
+        if response.status == 200 or response.status == 304:
+            setattr(self, name, Filter(self.db, self._id+'/'+name+'/'))
+            return getattr(self, name)
+        else:
+            raise AttributeError("No filters named "+name+". "+str(response.status))
+
+
+class Filters(object):
+    def __init__(self, db):
+        self.db = db
+
+    def __getattr__(self, name):
+        setattr(self, name, Changes(self.db, '_changes?filter='+name))
+        return getattr(self, name)
 
 
 class TempViewException(Exception):
@@ -414,6 +488,7 @@ class Database(object):
         else:
             self.http = http
         self.views = Views(self)
+        self.filters = Filters(self)
 
     def get(self, id_, rev=None):
         """Get a single document by id and
@@ -595,7 +670,7 @@ class Database(object):
         assert response.status == 201
         return json.loads(response.body)
 
-    def sync_design_doc(self, name, directory, language='javascript'):
+    def sync_design_doc(self, name, directory, filters=False, language='javascript'):
         # TODO support views in python
         document = copy.copy(design_template)
         document['language'] = language
@@ -608,6 +683,13 @@ class Database(object):
             v = {}
             if view.startswith('.'):
                 continue
+            if filters:
+                if os.path.isfile(os.path.join(directory, view, 'filter.'+ext)):
+                    v = open(
+                        os.path.join(directory, view, 'filter.'+ext), 'r').read()
+                d[view.split('.')[0]] = v
+                document['filters'] = d
+                continue
             if os.path.isfile(os.path.join(directory, view, 'map.'+ext)):
                 v['map'] = open(
                     os.path.join(directory, view, 'map.'+ext), 'r').read()
@@ -619,11 +701,21 @@ class Database(object):
         try:
             current = self.get(document["_id"])
             rev = current.pop('_rev')
-            if current != document:
+            if filters:
+                if 'views' in current:
+                    current_view = current.pop('views')
+                    document["views"] = current_view
                 document["_rev"] = rev
                 info = self.save(document)
             else:
-                info = {'id': current['_id'], 'rev': rev}
+                if current != document:
+                    if 'filters' in current:
+                        current_filters = current.pop('filters')
+                        document["filters"] = current_filters
+                    document["_rev"] = rev
+                    info = self.save(document)
+                else:
+                    info = {'id': current['_id'], 'rev': rev}
         except Exception, e:
             info = self.save(document)
 

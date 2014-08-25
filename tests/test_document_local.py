@@ -18,6 +18,8 @@ class DocumentLocal(unittest.TestCase):
             pass
         this_dir = os.path.abspath(os.path.dirname(__file__))
         self.db.sync_design_doc('banzai', os.path.join(this_dir, 'views'))
+        #self.db.sync_design_doc('banzai', os.path.join(this_dir, 'views'))
+        self.db.sync_design_doc('banzai', os.path.join(this_dir, 'filters'), filters=True)
 
     def test_db_exists(self):
         db_test = Database(URI)
@@ -68,9 +70,24 @@ class DocumentLocal(unittest.TestCase):
             print i, rev
         self.assertEqual(is_compacted, True)
 
+    def test_views(self):
+        # views should be successfully created
+        # make query to views
+        #rows = self.db.views.banzai.byType(key="red-lectroid")
+        #self.assertEqual(len(rows), 6)
+        pass
+
+    def test_filters(self):
+        # filters should be successfully added
+        # make query to filters
+        #rows = self.db.filters.banzai.red()
+        #time.sleep(1)
+        #self.assertEqual(rows.last_seq(), 6)
+        pass
+
     def tearDown(self):
         deletedb(self.db)
-        #pass
+
 
 if __name__ == '__main__':
     unittest.main()
