@@ -68,6 +68,11 @@ Please read on the [document](http://nicolaisi.github.io/couchquery/) for furthe
 
 Changes
 =======
+0.10.3
+
++ feature: added filters (beta)
+
+
 0.10.2
 
 + feature: added compaction method
